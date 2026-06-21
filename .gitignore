@@ -7,5 +7,16 @@ dist
 .DS_Store
 *.log
 
-# Claude Code local settings
-.claude/settings.local.json
+# Build artifacts
+*.tsbuildinfo
+
+# Supabase local state
+supabase/.temp/
+
+# Local agent / skill tooling
+.claude/
+.agents/
+skills-lock.json
+
+# Redundant archive (briefs/ is committed unzipped)
+Archive.zip
