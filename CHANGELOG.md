@@ -2,6 +2,21 @@
 
 All notable changes to Warisly. Semantic versioning `MAJOR.MINOR.PATCH`.
 
+## [web 0.14.1 · admin 0.11.1] — Fix Vercel build under Turborepo strict env mode
+
+Build-only fix, no product, schema, or RLS change. Both Next.js apps failed to build on Vercel
+because Turborepo 2.x runs tasks in **strict environment mode** by default: the `build` task was
+handed none of the Supabase / WhatsApp / eKYC / OpenAI env vars, so `@supabase/ssr` client
+creation (`/mfa/enroll` prerender) and the env Zod parse (`/api/ekyc/webhook` page-data
+collection) threw on `undefined`. Local builds were unaffected because Next.js reads `.env.local`
+from disk; Vercel injects env only into the process environment, which Turbo then filtered out.
+
+### Fixed
+- Declared every build-time env var in the `build` task's `env` key in `turbo.json`, so Turbo
+  passes them through to `next build`. Confirmed via `turbo run build --dry` (envMode `strict`,
+  all vars now listed). **No code change** — the values must still be set in Vercel Project
+  Settings for Production + Preview, which is independent of this fix.
+
 ## [Unreleased] — Friction on asset archiving
 
 UX safeguard, no schema change. Archiving is reversible at the data layer but has no restore UI,
@@ -14,6 +29,38 @@ so from the owner's side it reads as destructive — it should not be a one-clic
   asset will leave the recovery map your family receives…") and a distinct warm-danger confirm button.
 - New reusable `bata` danger token family in the Tailwind preset (the app's first destructive-action
   color), used here instead of a one-off hex.
+
+## [0.14.0] — KTP candidate-NIK pre-fill (owner + heir)
+
+KYC pre-fill: an owner (or an heir, on a plain claim link) photographs their KTP, an LLM vision
+model reads **only NIK / name / DOB** into a draft, the user reviews/edits every field, and only
+the confirmed text is saved as an **unverified candidate** identity. OCR is not verification — it
+sets no verified flag, matches no recipient, and arms no release; the eKYC Dukcapil face-match
+remains the sole authority (Cardinal #5). The KTP image is OCR'd in memory and dropped — never
+uploaded, never stored (Cardinal #3). The heir path runs with no account, authorized by the claim
+token only (Cardinal #4). Briefs #12a, #12b-i, #12b-ii, #12b-iii.
+
+### Added
+- **`detail` JSONB column on `wrs_owners` and `wrs_release_requests`** (migration `0014`). The
+  unverified candidate identity lives under `detail.candidate` (`status:'unverified'`, `source:'ktp_ocr'`),
+  kept strictly separate from the verified fields (`kyc_status` / `verified_nik` / claim `status`).
+  Additive-only; no new RLS policy needed — existing per-row policies already scope the column
+  (owner writes own row via `owners_update_self`; heir writes run service-role, token-gated).
+- **KTP OCR engine** (`lib/prompts/ktp-ocr.ts`, `recognizeKtp` in `lib/llm.ts`, `services/ktp-ocr.ts`).
+  Reuses the existing OpenAI `gpt-4o` vision client (no separate provider). The prompt extracts
+  **only** NIK/name/DOB and explicitly ignores address/religion/marital status/etc. Every call is
+  logged to `wrs_api_log`; on error only the error class is recorded (no PII).
+- **Shared `KtpScan` component** (`components/kyc/KtpScan.tsx`) — capture → OCR → review → save,
+  reused by the owner profile and the heir claim flow. Image downscaled in-browser (strips EXIF),
+  sent for OCR, then dropped. Nothing is saved until the user confirms.
+- **Owner KTP step** (`/profil/ktp`, session + RLS-gated) with a pre-fill entry link on the profile
+  page, and **heir KTP step** (`/klaim/[token]/ktp`, token-gated, no account).
+
+### Notes
+- Reconciled the briefs (which assumed Gemini, `wrs_claims`/`wrs_profiles`, and `src/data/*`) onto
+  this codebase: OpenAI vision, `wrs_release_requests`/`wrs_owners`, and `@warisly/db` data layer.
+- Observability logs the OCR call against the estate `owner_id` (FK-valid), never the claim id;
+  the heir token is validated against a strict uuid shape before any DB query.
 
 ## [0.13.0] — Scanned-asset intake (photo → AI draft → owner-confirmed save)
 
