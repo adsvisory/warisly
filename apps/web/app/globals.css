@@ -11,3 +11,10 @@ body {
 }
 
 h1, h2, h3 { font-family: var(--font-fraunces), Georgia, serif; line-height: 1.1; }
+
+/* Inside the phone mockup, viewport-based responsive prefixes (sm:, md:) key off
+   the desktop viewport, not the ~400px frame. Force multi-column form grids to
+   stack so the mockup previews the real mobile layout faithfully. Real mobile
+   devices (<640px viewport) already stack via the absence of the sm: breakpoint. */
+.phone-frame .asset-grid,
+.phone-frame .frame-stack { grid-template-columns: minmax(0, 1fr) !important; }

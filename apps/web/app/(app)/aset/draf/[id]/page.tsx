@@ -1,14 +1,19 @@
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { getDraft } from "@warisly/db";
 import { Eyebrow, H1, Card } from "@warisly/ui";
 import { AssetForm } from "@/components/AssetForm";
 import { confirmDraftAction, discardDraftAction } from "@/app/actions/drafts";
-import { copy } from "@warisly/lib";
 
-const fieldLabel: Record<string, string> = { category: "kategori", provider: "penyedia", valueEstimate: "nilai" };
+const fieldLabelKey: Record<string, string> = {
+  category: "drafts.fieldCategory",
+  provider: "drafts.fieldProvider",
+  valueEstimate: "drafts.fieldValue",
+};
 
 export default async function DraftReview({ params }: { params: Promise<{ id: string }> }) {
+  const t = await getTranslations();
   const { id } = await params;
   const supabase = await createClient();
   const d = await getDraft(supabase, id);
@@ -22,19 +27,19 @@ export default async function DraftReview({ params }: { params: Promise<{ id: st
 
   return (
     <div>
-      <Eyebrow>Dari WhatsApp</Eyebrow>
-      <H1>Tinjau entri</H1>
+      <Eyebrow>{t("drafts.fromWhatsapp")}</Eyebrow>
+      <H1>{t("drafts.reviewTitle")}</H1>
       {flags.length > 0 && (
         <Card className="mt-4 border-amber-300 bg-amber-50">
           <p className="font-sans text-sm text-amber-800">
-            Belum yakin: {flags.map((f) => fieldLabel[f] ?? f).join(", ")}. Mohon periksa sebelum menyimpan.
+            {t("drafts.lowConfidence", { fields: flags.map((f) => (fieldLabelKey[f] ? t(fieldLabelKey[f]) : f)).join(", ") })}
           </p>
         </Card>
       )}
-      <AssetForm initial={initial} action={confirmDraftAction} hidden={{ draftId: d.id }} submitLabel={copy.actions.save} />
+      <AssetForm initial={initial} action={confirmDraftAction} hidden={{ draftId: d.id }} submitLabel={t("common.save")} />
       <form action={discardDraftAction} className="mt-3">
         <input type="hidden" name="draftId" value={d.id} />
-        <button className="font-sans text-sm text-paper-muted underline">Buang entri ini</button>
+        <button className="font-sans text-sm text-paper-muted underline">{t("drafts.discard")}</button>
       </form>
     </div>
   );

@@ -50,7 +50,9 @@ export async function structureIntakeMessage(intakeId: string): Promise<void> {
     await logApiCall(admin, { ownerId: msg.ownerId, provider: "llm", operation: `structure_${msg.type}`, status: "ok", latencyMs: Date.now() - t0 });
   } catch (e) {
     await markIntakeStatus(admin, intakeId, "failed");
-    await logApiCall(admin, { ownerId: msg.ownerId, provider: "llm", operation: `structure_${msg.type}`, status: "error", latencyMs: Date.now() - t0, meta: { error: String(e) } });
+    // Log only the error class, never String(e) — upstream LLM/STT error bodies can
+    // echo back the user's intake content (PII) into wrs_api_log.
+    await logApiCall(admin, { ownerId: msg.ownerId, provider: "llm", operation: `structure_${msg.type}`, status: "error", latencyMs: Date.now() - t0, meta: { error: e instanceof Error ? e.name : "unknown" } });
     throw e;
   }
 }

@@ -20,9 +20,17 @@ export async function getReleaseConfig(supabase: SupabaseClient): Promise<Releas
     getSetting<string[]>(supabase, "release.ping_channels"),
     getSetting<Quorum>(supabase, "trustees.quorum"),
   ]);
-  const bounds = dflt ?? { default: 14, min: 7, max: 90 };
-  const allowedChannels = channels ?? ["whatsapp", "email", "sms"];
-  const q = quorum ?? { required: 2, of: 3 };
+  // Safety-critical tunables MUST come from config (wrs_settings), never code.
+  // Fail closed: if a setting is missing we refuse to proceed rather than fall back
+  // to a magic number that could silently widen the waiting window or quorum.
+  if (!dflt || !channels || !quorum) {
+    throw new Error(
+      "Release configuration missing from wrs_settings (waiting_period_days / ping_channels / trustees.quorum). Refusing to fall back to hardcoded defaults.",
+    );
+  }
+  const bounds = dflt;
+  const allowedChannels = channels;
+  const q = quorum;
   return {
     eligible: current.eligible,
     rule: current.rule ?? { waitingDays: bounds.default, channels: ["whatsapp"] },

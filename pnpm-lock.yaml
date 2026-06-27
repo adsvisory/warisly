@@ -17,6 +17,9 @@ importers:
 
   apps/admin:
     dependencies:
+      '@supabase/ssr':
+        specifier: ^0.5.2
+        version: 0.5.2(@supabase/supabase-js@2.108.2)
       '@supabase/supabase-js':
         specifier: ^2.45.4
         version: 2.108.2

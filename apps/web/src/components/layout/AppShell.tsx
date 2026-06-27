@@ -3,54 +3,98 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Wallet, Users, User, Monitor, Smartphone } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Home, Wallet, Users, FileText, Clock, User, Monitor, Smartphone, type LucideIcon } from "lucide-react";
 import { Seal } from "@warisly/ui";
-import { copy } from "@warisly/lib";
+import { signOut } from "@/app/actions/auth";
 import { DeviceFrame } from "./DeviceFrame";
 
 type Mode = "responsive" | "mobile";
 const STORAGE_KEY = "warisly:shell-mode";
 
-const items = [
-  { href: "/beranda", label: copy.nav.home, Icon: Home },
-  { href: "/aset", label: copy.nav.assets, Icon: Wallet },
-  { href: "/amanah", label: copy.nav.amanah, Icon: Users },
-  { href: "/profil", label: copy.nav.profile, Icon: User },
+// Switch the navigation rail between the warm "bound-ledger" parchment spine and
+// a refined solid-ink spine. Both are fully styled — flip this one flag to compare.
+const RAIL_VARIANT: "parchment" | "ink" = "ink";
+
+const RAIL = {
+  parchment: {
+    aside: "bg-parchment border-r border-paper-edge",
+    brand: "text-tinta",
+    rule: "via-[#D8C9A4]",
+    inactive: "text-paper-muted hover:bg-tinta/[0.05] hover:text-tinta",
+    active: "bg-tinta text-ink-text",
+    activeIcon: "text-emas-glow",
+    inactiveIcon: "opacity-70",
+    footBorder: "border-paper-edge",
+    footText: "text-paper-muted hover:text-tinta",
+  },
+  ink: {
+    aside: "bg-tinta border-r border-tinta",
+    brand: "text-ink-text",
+    rule: "via-white/15",
+    inactive: "text-ink-muted hover:bg-white/[0.06] hover:text-ink-text",
+    active: "bg-kertas text-tinta",
+    activeIcon: "text-emas",
+    inactiveIcon: "opacity-80",
+    footBorder: "border-white/10",
+    footText: "text-ink-muted hover:text-ink-text",
+  },
+} as const;
+
+const NAV = [
+  { href: "/beranda", key: "home", Icon: Home, mobile: true },
+  { href: "/aset", key: "assets", Icon: Wallet, mobile: true },
+  { href: "/amanah", key: "amanah", Icon: Users, mobile: true },
+  { href: "/dosier", key: "dosier", Icon: FileText, mobile: false },
+  { href: "/rilis", key: "releaseRule", Icon: Clock, mobile: false },
+  { href: "/profil", key: "profile", Icon: User, mobile: true },
 ] as const;
 
+type Item = { href: string; label: string; Icon: LucideIcon };
 type ActiveFn = (href: string) => boolean;
 
-function Sidebar({ isActive }: { isActive: ActiveFn }) {
+function Rail({ items, isActive, signOutLabel }: { items: Item[]; isActive: ActiveFn; signOutLabel: string }) {
+  const s = RAIL[RAIL_VARIANT];
   return (
-    <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-paper-edge bg-kertas px-4 py-6 md:flex print:hidden">
-      <Link href="/beranda" className="mb-8 flex items-center gap-2 px-2">
-        <Seal size={32} />
-        <span className="font-display text-xl text-tinta">Warisly<span className="text-emas">.</span></span>
+    <aside className={`sticky top-0 hidden h-dvh w-[252px] shrink-0 flex-col px-4 py-6 md:flex print:hidden ${s.aside}`}>
+      <Link href="/beranda" className="flex items-center gap-3 px-2">
+        <Seal size={30} />
+        <span className={`font-display text-xl ${s.brand}`}>Warisly<span className="text-emas">.</span></span>
       </Link>
-      <nav className="flex flex-col gap-1">
-        {items.map(({ href, label, Icon }) => (
-          <Link
-            key={href}
-            href={href}
-            className={`flex items-center gap-3 rounded-lg px-3 py-2.5 font-sans text-sm ${isActive(href) ? "bg-tinta/5 font-medium text-tinta" : "text-paper-muted hover:text-tinta"}`}
-          >
-            <Icon size={18} /> {label}
-          </Link>
-        ))}
+      <div className={`mx-2 mb-3 mt-5 h-px bg-gradient-to-r from-transparent to-transparent ${s.rule}`} />
+      <nav className="flex flex-col gap-0.5">
+        {items.map(({ href, label, Icon }) => {
+          const active = isActive(href);
+          return (
+            <Link
+              key={href}
+              href={href}
+              aria-current={active ? "page" : undefined}
+              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 font-sans text-sm font-medium transition ${active ? s.active : s.inactive}`}
+            >
+              <Icon size={18} className={active ? s.activeIcon : s.inactiveIcon} /> {label}
+            </Link>
+          );
+        })}
       </nav>
+      <form action={signOut} className={`mt-auto border-t px-3 pt-4 ${s.footBorder}`}>
+        <button type="submit" className={`font-sans text-[13px] transition ${s.footText}`}>
+          {signOutLabel}
+        </button>
+      </form>
     </aside>
   );
 }
 
-function BottomNav({ isActive, className = "" }: { isActive: ActiveFn; className?: string }) {
+function BottomNav({ items, isActive, className = "" }: { items: Item[]; isActive: ActiveFn; className?: string }) {
   return (
     <nav className={`border-t border-paper-edge bg-kertas/95 backdrop-blur print:hidden ${className}`}>
-      <ul className="grid grid-cols-4">
+      <ul className="grid" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>
         {items.map(({ href, label, Icon }) => (
           <li key={href}>
             <Link
               href={href}
-              className={`flex flex-col items-center gap-1 py-3 font-sans text-xs ${isActive(href) ? "text-tinta" : "text-paper-muted"}`}
+              className={`flex flex-col items-center gap-1 py-2.5 font-sans text-[10.5px] ${isActive(href) ? "text-tinta" : "text-paper-muted"}`}
             >
               <Icon size={20} /> {label}
             </Link>
@@ -62,10 +106,16 @@ function BottomNav({ isActive, className = "" }: { isActive: ActiveFn; className
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
+  const t = useTranslations();
   const [mode, setMode] = useState<Mode>("responsive");
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const isActive: ActiveFn = (href) => pathname === href || pathname.startsWith(href + "/");
+
+  const railItems: Item[] = NAV.map((n) => ({ href: n.href, label: t(`nav.${n.key}`), Icon: n.Icon }));
+  const mobileItems: Item[] = NAV.filter((n) => n.mobile).map((n) => ({ href: n.href, label: t(`nav.${n.key}`), Icon: n.Icon }));
+  const signOutLabel = t("profil.signOut");
+  const crumb = railItems.find((i) => isActive(i.href))?.label ?? t("nav.home");
 
   useEffect(() => {
     setMounted(true);
@@ -97,7 +147,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     </div>
   );
 
-  // Mobile-mockup view (also how it looks on a real phone): narrow column + pinned bottom nav.
+  // Mobile phone-mockup mode: render the phone with its own bottom nav inside the device frame.
   if (mounted && mode === "mobile") {
     return (
       <>
@@ -105,25 +155,27 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <DeviceFrame>
           <div className="flex h-full flex-col">
             <main className="flex-1 overflow-y-auto px-6 pb-6 pt-8 print:overflow-visible">{children}</main>
-            <BottomNav isActive={isActive} className="shrink-0" />
+            <BottomNav items={mobileItems} isActive={isActive} className="shrink-0" />
           </div>
         </DeviceFrame>
       </>
     );
   }
 
-  // Responsive view (default): sidebar on desktop, bottom nav on mobile.
   return (
     <>
       {Toggle}
-      <div className="min-h-dvh md:flex">
-        <Sidebar isActive={isActive} />
+      <div className="min-h-dvh bg-kertas md:flex">
+        <Rail items={railItems} isActive={isActive} signOutLabel={signOutLabel} />
         <div className="flex min-h-dvh flex-1 flex-col">
-          <main className="flex-1 px-6 pb-24 pt-8 md:px-10 md:pb-12">
-            <div className="mx-auto w-full max-w-2xl print:max-w-none">{children}</div>
+          <header className="hidden items-center justify-between border-b border-paper-edge px-10 py-4 md:flex print:hidden">
+            <span className="font-sans text-[13px] text-paper-muted">{crumb}</span>
+          </header>
+          <main className="flex-1 px-6 pb-24 pt-8 md:px-10 md:py-9 print:p-0">
+            <div className="mx-auto w-full max-w-[760px] print:max-w-none">{children}</div>
           </main>
         </div>
-        <BottomNav isActive={isActive} className="fixed inset-x-0 bottom-0 md:hidden" />
+        <BottomNav items={mobileItems} isActive={isActive} className="fixed inset-x-0 bottom-0 z-40 md:hidden" />
       </div>
     </>
   );

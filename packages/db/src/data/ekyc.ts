@@ -12,9 +12,13 @@ export async function createEkycSession(supabase: SupabaseClient, ownerId: strin
   return data.id as string;
 }
 
+// Single-transition / replay-safe: a session may only move OUT of "created" once.
+// The `.eq("status", "created")` guard means a replayed webhook (or a stale
+// failed→passed reorder) updates zero rows and returns null, so the caller never
+// re-applies a verification result. Returns null when no fresh transition occurred.
 export async function markEkycResult(supabase: SupabaseClient, vendorRef: string, status: EkycStatus, meta: Record<string, unknown>): Promise<{ ownerId: string } | null> {
   const { data, error } = await supabase.from("wrs_ekyc_sessions")
-    .update({ status, result_meta: meta }).eq("vendor_ref", vendorRef)
+    .update({ status, result_meta: meta }).eq("vendor_ref", vendorRef).eq("status", "created")
     .select("owner_id").maybeSingle();
   if (error) throw new Error(`markEkycResult failed: ${error.message}`);
   return data ? { ownerId: data.owner_id as string } : null;

@@ -1,12 +1,13 @@
+import { getTranslations } from "next-intl/server";
 import { Eyebrow, H1 } from "@warisly/ui";
-import { copy } from "@warisly/lib";
 import { AssetForm } from "@/components/AssetForm";
 
-export default function BaruPage() {
+export default async function BaruPage() {
+  const t = await getTranslations();
   return (
     <div>
-      <Eyebrow>{copy.brand}</Eyebrow>
-      <H1>{copy.actions.addAsset}</H1>
+      <Eyebrow>{t("common.brand")}</Eyebrow>
+      <H1>{t("assets.newTitle")}</H1>
       <AssetForm />
     </div>
   );

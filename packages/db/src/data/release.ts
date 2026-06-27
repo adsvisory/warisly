@@ -49,6 +49,16 @@ export async function getRequestByToken(supabase: SupabaseClient, token: string)
   return data ? toReq(data) : null;
 }
 
+// Public, token-gated status read. Returns ONLY the lifecycle status — never the
+// claimant identity, matched recipient, or document paths. The full row (getRequestByToken)
+// is reserved for trusted server-internal callers; the anonymous /klaim/[token] page
+// must not be handed pre-release sensitive fields.
+export async function getReleaseStatusByToken(supabase: SupabaseClient, token: string): Promise<{ status: ReleaseStatus } | null> {
+  const { data, error } = await supabase.from("wrs_release_requests").select("status").eq("claim_token", token).maybeSingle();
+  if (error) throw new Error(`getReleaseStatusByToken failed: ${error.message}`);
+  return data ? { status: data.status as ReleaseStatus } : null;
+}
+
 export async function setRequestDocuments(supabase: SupabaseClient, token: string, paths: { aktaPath: string; kkPath: string }): Promise<boolean> {
   const { data, error } = await supabase.from("wrs_release_requests")
     .update({ akta_path: paths.aktaPath, kk_path: paths.kkPath, status: "documents_submitted" })
@@ -69,6 +79,53 @@ export async function setRequestIdentity(
     .eq("claim_token", token).eq("status", "documents_submitted").select("owner_id").maybeSingle();
   if (error) throw new Error(`setRequestIdentity failed: ${error.message}`);
   return data ? { ownerId: data.owner_id } : null;
+}
+
+// ── Heir KTP candidate-identity pre-fill (#12b-iii) ────────────────────────────
+// claim_token is a uuid; guard the format so an invalid token returns null instead of
+// raising a Postgres "invalid input syntax for type uuid" error.
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// Resolve a claim by its heir token AND confirm it still accepts identity input. Returns the
+// claim id + estate owner_id (the latter is used only for FK-valid observability logging — a
+// claim id would violate wrs_api_log.owner_id's FK to wrs_owners). Use a service-role client:
+// wrs_release_requests has no anon/authenticated read policy; the heir has no session.
+export async function resolveOpenClaimByToken(
+  supabase: SupabaseClient,
+  token: string,
+): Promise<{ id: string; ownerId: string } | null> {
+  if (!UUID_RE.test(token)) return null;
+  const { data, error } = await supabase
+    .from("wrs_release_requests").select("id, owner_id, status").eq("claim_token", token).maybeSingle();
+  if (error) throw new Error(`resolveOpenClaimByToken failed: ${error.message}`);
+  if (!data) return null;
+  // Do not accept identity edits on a finished claim (released/rejected/cancelled).
+  const closed: ReleaseStatus[] = ["released", "rejected", "cancelled"];
+  if (closed.includes(data.status as ReleaseStatus)) return null;
+  return { id: data.id as string, ownerId: data.owner_id as string };
+}
+
+// Write the heir's candidate (UNVERIFIED) identity under detail.candidate. NEVER touches
+// status, claimant_ekyc_ref, matched_recipient_id, or release_state — it is pre-fill only,
+// not a verified match (Cardinal 5). Use a service-role client (token-gated by the caller).
+export async function saveHeirCandidateNik(
+  supabase: SupabaseClient,
+  claimId: string,
+  input: { nik: string; name: string; dob: string },
+): Promise<void> {
+  const { data: row, error: readErr } = await supabase
+    .from("wrs_release_requests").select("detail").eq("id", claimId).single();
+  if (readErr) throw new Error(`saveHeirCandidateNik read failed: ${readErr.message}`);
+
+  const detail = {
+    ...((row?.detail as Record<string, unknown>) ?? {}),
+    candidate: {
+      nik: input.nik, name: input.name, dob: input.dob,
+      source: "ktp_ocr", status: "unverified", captured_at: new Date().toISOString(),
+    },
+  };
+  const { error } = await supabase.from("wrs_release_requests").update({ detail }).eq("id", claimId);
+  if (error) throw new Error(`saveHeirCandidateNik failed: ${error.message}`);
 }
 
 export async function matchRecipientByNik(supabase: SupabaseClient, ownerId: string, nik: string | null): Promise<string | null> {

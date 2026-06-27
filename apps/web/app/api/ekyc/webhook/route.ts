@@ -7,7 +7,8 @@ export async function POST(req: Request) {
   try {
     await handleEkycWebhook(raw, req.headers.get("x-signature"));
   } catch (err) {
-    console.error("[ekyc webhook]", err);
+    // Log only the error class — the raw error/payload may carry identity data.
+    console.error("[ekyc webhook]", err instanceof Error ? err.name : "error");
     return new Response("error", { status: 400 });
   }
   return new Response("ok", { status: 200 });

@@ -31,7 +31,10 @@ export async function getRegistry(supabase: SupabaseClient): Promise<Registry> {
 }
 
 export const assetInputSchema = z.object({
-  category: z.enum(["saham","reksa_dana","bank","e_wallet","emas","crypto","asuransi","bpjs","properti","fisik","utang","lainnya"]),
+  category: z.enum([
+    "saham","reksa_dana","bank","e_wallet","emas","crypto","asuransi","bpjs","properti","fisik","utang","lainnya",
+    "obligasi","p2p","luar_negeri","pensiun","bisnis","domain","ip","poin","game",
+  ]),
   isLiability: z.boolean().default(false),
   provider: z.string().trim().max(120).nullable(),
   label: z.string().trim().max(120).nullable(),

@@ -16,7 +16,9 @@ export async function startVerification(ownerId: string, callbackUrl: string): P
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${serverEnv.EKYC_API_KEY}` },
     body: JSON.stringify({ reference: ownerId, callback_url: callbackUrl, checks: ["ektp", "liveness", "dukcapil"] }),
   });
-  if (!res.ok) throw new Error(`eKYC start ${res.status}: ${await res.text()}`);
+  // Don't fold the vendor response body into the error — it may echo the ownerId
+  // reference or partial identity data into logs. Status code is enough to diagnose.
+  if (!res.ok) throw new Error(`eKYC start failed: ${res.status}`);
   const j = await res.json();
   return { vendorRef: j.id as string, sessionUrl: j.url as string };
 }

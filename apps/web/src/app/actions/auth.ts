@@ -6,10 +6,10 @@ import { upsertOwnerProfile } from "@warisly/db";
 
 export async function sendOtp(formData: FormData) {
   const phone = String(formData.get("phone") ?? "").trim();
-  if (!phone) return { error: "Nomor telepon wajib diisi." };
+  if (!phone) return { error: "phoneRequired" };
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({ phone });
-  if (error) return { error: "Gagal mengirim kode. Coba lagi." };
+  if (error) return { error: "sendFailed" };
   return { ok: true, phone };
 }
 
@@ -18,7 +18,7 @@ export async function verifyOtp(formData: FormData) {
   const token = String(formData.get("token") ?? "").trim();
   const supabase = await createClient();
   const { data, error } = await supabase.auth.verifyOtp({ phone, token, type: "sms" });
-  if (error || !data.user) return { error: "Kode salah atau kedaluwarsa." };
+  if (error || !data.user) return { error: "wrongCode" };
   await upsertOwnerProfile(supabase, { id: data.user.id, phone });
   redirect("/beranda");
 }

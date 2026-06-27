@@ -2,7 +2,11 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type AssetCategory =
   | "saham" | "reksa_dana" | "bank" | "e_wallet" | "emas" | "crypto"
-  | "asuransi" | "bpjs" | "properti" | "fisik" | "utang" | "lainnya";
+  | "asuransi" | "bpjs" | "properti" | "fisik" | "utang" | "lainnya"
+  // Added with the 20-item inheritance catalog (migration 0011). Codes match the
+  // wrs_asset_category enum; estate path is derived from the category via the catalog.
+  | "obligasi" | "p2p" | "luar_negeri" | "pensiun" | "bisnis"
+  | "domain" | "ip" | "poin" | "game";
 
 export interface Asset {
   id: string;
@@ -108,4 +112,32 @@ export async function updateAsset(supabase: SupabaseClient, id: string, patch: P
 export async function archiveAsset(supabase: SupabaseClient, id: string): Promise<void> {
   const { error } = await supabase.from("wrs_assets").update({ archived_at: new Date().toISOString() }).eq("id", id);
   if (error) throw new Error(`archiveAsset failed: ${error.message}`);
+}
+
+// Stores an OFFLINE-DOCUMENT image (#11a/#11b-iii) and records its reference in
+// detail.document. Runs on the RLS-bound owner client; the bucket policies require
+// the first path segment to equal auth.uid(), and wrs_owners.id == auth.uid(), so the
+// caller's path convention is {owner_id}/{asset_id}/{doc_id}.{ext}. NEVER called for
+// financial screenshots — the intake service drops those (Cardinal 1: no honeypot).
+// The caller (service layer) prepares the bytes + path so this stays node-global-free.
+export async function attachDocumentImage(
+  supabase: SupabaseClient,
+  params: { assetId: string; path: string; bytes: Uint8Array; mimeType: string },
+): Promise<void> {
+  const { error: upErr } = await supabase.storage
+    .from("wrs-documents")
+    .upload(params.path, params.bytes, { contentType: params.mimeType, upsert: false });
+  if (upErr) throw new Error(`attachDocumentImage upload failed: ${upErr.message}`);
+
+  const { data: row, error: readErr } = await supabase
+    .from("wrs_assets").select("detail").eq("id", params.assetId).single();
+  if (readErr) throw new Error(`attachDocumentImage read failed: ${readErr.message}`);
+
+  const detail = {
+    ...((row.detail as Record<string, unknown>) ?? {}),
+    document: { path: params.path, mime: params.mimeType, size_bytes: params.bytes.byteLength, captured_at: new Date().toISOString() },
+  };
+  const { error: updErr } = await supabase
+    .from("wrs_assets").update({ detail }).eq("id", params.assetId);
+  if (updErr) throw new Error(`attachDocumentImage update failed: ${updErr.message}`);
 }

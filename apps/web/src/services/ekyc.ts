@@ -1,6 +1,6 @@
 import "server-only";
 import { adminClient } from "@/lib/supabase/admin";
-import { createEkycSession, markEkycResult, setOwnerVerified, logApiCall } from "@warisly/db";
+import { createEkycSession, markEkycResult, setOwnerVerified, logApiCall, recordEvent } from "@warisly/db";
 import { startVerification, verifyEkycWebhook } from "@/lib/ekyc";
 
 export async function beginEkyc(ownerId: string, baseUrl: string): Promise<string> {
@@ -18,8 +18,18 @@ export async function handleEkycWebhook(raw: string, signature: string | null): 
   if (!result) throw new Error("invalid eKYC webhook signature");
   const admin = adminClient();
   const session = await markEkycResult(admin, result.vendorRef, result.passed ? "passed" : "failed", { passed: result.passed });
-  if (session && result.passed) {
+  if (!session) {
+    // Already transitioned out of "created" — a duplicate/replayed webhook. Ignore (idempotent).
+    await logApiCall(admin, { ownerId: null, provider: "ekyc", operation: "webhook", status: "ignored_duplicate", latencyMs: 0 });
+    return;
+  }
+  if (result.passed) {
     await setOwnerVerified(admin, session.ownerId, { verifiedNik: result.nik, ekycRef: result.vendorRef });
   }
-  await logApiCall(admin, { ownerId: session?.ownerId ?? null, provider: "ekyc", operation: "webhook", status: result.passed ? "ok" : "failed", latencyMs: 0 });
+  await recordEvent(admin, {
+    ownerId: session.ownerId, actor: "system",
+    eventType: result.passed ? "ekyc.passed" : "ekyc.failed",
+    subjectType: "ekyc_session", subjectId: result.vendorRef,
+  });
+  await logApiCall(admin, { ownerId: session.ownerId, provider: "ekyc", operation: "webhook", status: result.passed ? "ok" : "failed", latencyMs: 0 });
 }
