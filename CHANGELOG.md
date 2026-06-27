@@ -2,6 +2,32 @@
 
 All notable changes to Warisly. Semantic versioning `MAJOR.MINOR.PATCH`.
 
+## [web 0.14.2] — Dev login bypass for the POC
+
+Dev-only convenience, **non-production**. No schema, RLS, or production-behaviour change.
+
+### Added
+- **"Bypass number" sign-in on `/masuk`** (`signInBypass`): type a phone number and go
+  straight to `/beranda`, no SMS round-trip — for the POC. The team can demo the owner app on
+  the deployed preview without an SMS provider configured.
+- **Offline seed script** `packages/db/scripts/seed-dev-user.mjs` (`pnpm --filter @warisly/db
+  seed:dev-user +62…`) to create/refresh the dev user. It is the only thing that uses the
+  service-role key, and it is an offline script — **not** a request path.
+
+### Safety / no-access posture
+- The bypass signs in with the **anon client** (`signInWithPassword`); the service-role key
+  **never** touches the login request path (keeps RLS the permission spine).
+- Triple-gated so it can never authenticate on production: hard block when
+  `VERCEL_ENV === "production"`, requires explicit `DEV_LOGIN_BYPASS=1` (never set in prod), and
+  the UI only renders when `NEXT_PUBLIC_DEV_LOGIN=1`. No passwords/tokens for any external
+  provider are stored — this is Warisly's own auth only.
+- `signInPassword` (existing email dev login) moved to the same gate, so both dev paths share
+  one switch and both work on Vercel preview.
+
+### Changed
+- New env vars (dev-only, documented in `.env.example` and `turbo.json`): `DEV_LOGIN_BYPASS`,
+  `DEV_LOGIN_PASSWORD`, `NEXT_PUBLIC_DEV_LOGIN`, `NEXT_PUBLIC_DEV_LOGIN_PHONE`.
+
 ## [web 0.14.1 · admin 0.11.1] — Fix Vercel build under Turborepo strict env mode
 
 Build-only fix, no product, schema, or RLS change. Both Next.js apps failed to build on Vercel
@@ -12,10 +38,17 @@ collection) threw on `undefined`. Local builds were unaffected because Next.js r
 from disk; Vercel injects env only into the process environment, which Turbo then filtered out.
 
 ### Fixed
+- **web:** made the env Zod validation lazy in `src/lib/env.server.ts` and `src/lib/env.ts` — the
+  schema is now parsed on first property access (request time) via a memoized `Proxy`, never at
+  module import. `next build` collects page data by importing route modules, so the previous
+  eager top-level `.parse()` crashed the whole build whenever a server secret was absent. A
+  webhook secret is never needed to *build* the app, only to serve a request, so the build no
+  longer depends on runtime secrets at all. Verified by building with `.env.local` removed.
 - Declared every build-time env var in the `build` task's `env` key in `turbo.json`, so Turbo
-  passes them through to `next build`. Confirmed via `turbo run build --dry` (envMode `strict`,
-  all vars now listed). **No code change** — the values must still be set in Vercel Project
-  Settings for Production + Preview, which is independent of this fix.
+  passes them through to `next build`. This is still required for the `NEXT_PUBLIC_*` vars, which
+  Next.js inlines into the client bundle at build time — those values must be set in Vercel
+  Project Settings for Production + Preview. Server-only secrets are now read at request time and
+  no longer gate the build.
 
 ## [Unreleased] — Friction on asset archiving
 

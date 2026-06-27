@@ -16,7 +16,12 @@
         "EKYC_WEBHOOK_SECRET",
         "WHATSAPP_ACCESS_TOKEN",
         "WHATSAPP_APP_SECRET",
-        "WHATSAPP_VERIFY_TOKEN"
+        "WHATSAPP_VERIFY_TOKEN",
+        "VERCEL_ENV",
+        "DEV_LOGIN_BYPASS",
+        "DEV_LOGIN_PASSWORD",
+        "NEXT_PUBLIC_DEV_LOGIN",
+        "NEXT_PUBLIC_DEV_LOGIN_PHONE"
       ]
     },
     "lint": {},

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { sendOtp, verifyOtp, signInPassword } from "@/app/actions/auth";
+import { sendOtp, verifyOtp, signInPassword, signInBypass } from "@/app/actions/auth";
 
 export default function MasukPage() {
   const t = useTranslations("masuk");
@@ -59,13 +59,27 @@ export default function MasukPage() {
       )}
       {error && <p className="mt-4 font-sans text-sm text-red-700">{t(error)}</p>}
 
-      {process.env.NODE_ENV !== "production" && (
-        <form action={signInPassword} className="mt-8 flex flex-col gap-3 border-t border-paper-edge pt-6">
-          <p className="font-sans text-xs uppercase tracking-eyebrow text-paper-muted">{t("devEyebrow")}</p>
-          <input name="email" type="email" autoComplete="email" placeholder={t("emailPlaceholder")} required className={field} />
-          <input name="password" type="password" autoComplete="current-password" placeholder={t("passwordPlaceholder")} required className={field} />
-          <button type="submit" className={primary}>{t("signInEmail")}</button>
-        </form>
+      {process.env.NEXT_PUBLIC_DEV_LOGIN === "1" && (
+        <div className="mt-8 flex flex-col gap-6 border-t border-paper-edge pt-6">
+          <form action={signInBypass} className="flex flex-col gap-3">
+            <p className="font-sans text-xs uppercase tracking-eyebrow text-paper-muted">{t("bypassEyebrow")}</p>
+            <input
+              name="phone"
+              type="tel"
+              defaultValue={process.env.NEXT_PUBLIC_DEV_LOGIN_PHONE ?? ""}
+              placeholder="+62…"
+              required
+              className={field}
+            />
+            <button type="submit" className={primary}>{t("bypassButton")}</button>
+          </form>
+          <form action={signInPassword} className="flex flex-col gap-3">
+            <p className="font-sans text-xs uppercase tracking-eyebrow text-paper-muted">{t("devEyebrow")}</p>
+            <input name="email" type="email" autoComplete="email" placeholder={t("emailPlaceholder")} required className={field} />
+            <input name="password" type="password" autoComplete="current-password" placeholder={t("passwordPlaceholder")} required className={field} />
+            <button type="submit" className={primary}>{t("signInEmail")}</button>
+          </form>
+        </div>
       )}
     </main>
   );

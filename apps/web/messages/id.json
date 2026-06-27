@@ -21,6 +21,8 @@
     "verify": "Masuk",
     "verifying": "Memverifikasi…",
     "changeNumber": "Ganti nomor",
+    "bypassEyebrow": "Uji (dev) — masuk cepat dengan nomor",
+    "bypassButton": "Masuk cepat (dev)",
     "devEyebrow": "Uji (dev) — masuk dengan email",
     "emailPlaceholder": "email",
     "passwordPlaceholder": "password",

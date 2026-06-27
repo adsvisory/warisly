@@ -21,6 +21,8 @@
     "verify": "Sign in",
     "verifying": "Verifying…",
     "changeNumber": "Change number",
+    "bypassEyebrow": "Dev test — quick sign in with a number",
+    "bypassButton": "Quick sign in (dev)",
     "devEyebrow": "Dev test — sign in with email",
     "emailPlaceholder": "email",
     "passwordPlaceholder": "password",
