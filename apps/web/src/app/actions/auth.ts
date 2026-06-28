@@ -31,14 +31,18 @@ export async function signOut() {
 
 // ── Dev-only sign-in (POC bypass) ────────────────────────────────────────────
 // The production app is phone-OTP only. These paths let the team into the owner
-// app without an SMS round-trip. They are gated so they can NEVER run on a Vercel
-// production deployment, and they sign in with the RLS-bound anon client
+// app without an SMS round-trip. They sign in with the RLS-bound anon client
 // (signInWithPassword) — the service-role key never touches this request path.
 // The dev user is created offline by packages/db/scripts/seed-dev-user.mjs.
+//
+// POC TRADE-OFF: the single switch below is DEV_LOGIN_BYPASS. When it is "1" the
+// bypass is enabled EVERYWHERE that flag is set — INCLUDING the Vercel production
+// deployment, which is the project's only public URL during the POC. This means a
+// password-bypass login is reachable by anyone who knows a seeded number. Before a
+// real launch, UNSET DEV_LOGIN_BYPASS (or set it to "0") in the production env.
+// Still scoped to Warisly's own auth — no external-account access, no credentials
+// stored (the no-access promise is intact).
 function devLoginAllowed(): boolean {
-  // Hard block on a Vercel *production* deployment, regardless of any flag.
-  if (process.env.VERCEL_ENV === "production") return false;
-  // Must be explicitly opted in. This env var is simply never set in prod.
   return process.env.DEV_LOGIN_BYPASS === "1";
 }
 

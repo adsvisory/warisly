@@ -2,6 +2,21 @@
 
 All notable changes to Warisly. Semantic versioning `MAJOR.MINOR.PATCH`.
 
+## [web 0.14.6] — Allow the dev bypass on the production deployment (POC)
+
+Dev-login posture change for the POC. No schema or RLS change.
+
+### Changed
+- **`devLoginAllowed()` is now gated solely by `DEV_LOGIN_BYPASS=1`** — the previous hard block on
+  `VERCEL_ENV === "production"` is removed. Reason: the project's only public URL during the POC
+  (`warisly-web.vercel.app`) IS the production deployment, so the bypass was unreachable there
+  (`/masuk?error=disabled`). The bypass now runs wherever `DEV_LOGIN_BYPASS=1` is set, including
+  production.
+- ⚠️ **Trade-off:** a password-bypass login is now reachable on the public production URL by
+  anyone who knows a seeded number. **Unset `DEV_LOGIN_BYPASS` (or set `0`) in the production env
+  before a real launch.** Still Warisly's own auth only — no external-account access, no stored
+  credentials (no-access promise intact).
+
 ## [web 0.14.5] — Fix dev bypass login on Vercel (production build)
 
 Dev-only bugfix, **non-production**. No schema, RLS, or product-behaviour change.
