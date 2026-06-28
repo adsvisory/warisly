@@ -30,13 +30,6 @@ export default function MasukPage() {
     setPending(false);
     if (res?.error) setError(res.error);
   }
-  // Dev quick-login: reuse the standard phone field, skip the OTP round-trip.
-  async function onDevBypass() {
-    const fd = new FormData();
-    fd.set("phone", phoneDraft);
-    await signInBypass(fd); // redirects on success
-  }
-
   const field = "rounded-lg border border-paper-edge bg-panel px-4 py-3 font-sans text-paper-text outline-none focus:border-emas";
   const primary = "mt-2 rounded-lg bg-tinta px-4 py-3 font-sans font-medium text-ink-text active:opacity-90 disabled:opacity-60";
 
@@ -48,27 +41,32 @@ export default function MasukPage() {
       <p className="mt-2 font-sans text-sm text-paper-muted">{t("subtitle")}</p>
 
       {step === "phone" ? (
-        <form action={onSend} className="mt-8 flex flex-col gap-3">
-          <label className="font-sans text-sm text-paper-text" htmlFor="phone">{t("phoneLabel")}</label>
-          <input
-            id="phone"
-            name="phone"
-            type="tel"
-            placeholder="+62…"
-            required
-            value={phoneDraft}
-            onChange={(e) => setPhoneDraft(e.target.value)}
-            className={field}
-          />
-          <button type="submit" disabled={pending} className={primary}>
-            {pending ? t("sending") : t("sendCode")}
-          </button>
-          {DEV_LOGIN && (
-            <button type="button" onClick={onDevBypass} className="mt-1 self-start font-sans text-sm text-emas underline">
-              {t("bypassButton")}
+        <>
+          <form action={onSend} className="mt-8 flex flex-col gap-3">
+            <label className="font-sans text-sm text-paper-text" htmlFor="phone">{t("phoneLabel")}</label>
+            <input
+              id="phone"
+              name="phone"
+              type="tel"
+              placeholder="+62…"
+              required
+              value={phoneDraft}
+              onChange={(e) => setPhoneDraft(e.target.value)}
+              className={field}
+            />
+            <button type="submit" disabled={pending} className={primary}>
+              {pending ? t("sending") : t("sendCode")}
             </button>
+          </form>
+          {DEV_LOGIN && (
+            <form action={signInBypass} className="mt-2">
+              <input type="hidden" name="phone" value={phoneDraft} />
+              <button type="submit" className="font-sans text-sm text-emas underline">
+                {t("bypassButton")}
+              </button>
+            </form>
           )}
-        </form>
+        </>
       ) : (
         <form action={onVerify} className="mt-8 flex flex-col gap-3">
           <label className="font-sans text-sm text-paper-text" htmlFor="token">

@@ -2,6 +2,18 @@
 
 All notable changes to Warisly. Semantic versioning `MAJOR.MINOR.PATCH`.
 
+## [web 0.14.5] — Fix dev bypass login on Vercel (production build)
+
+Dev-only bugfix, **non-production**. No schema, RLS, or product-behaviour change.
+
+### Fixed
+- **Dev "Masuk cepat tanpa OTP" now works on Vercel.** The quick-login button invoked the
+  `signInBypass` server action directly from an `onClick` handler; a `redirect()` from a
+  directly-invoked action doesn't navigate in a production build (it only "worked" under the more
+  forgiving `next dev`). Replaced it with a real `<form action={signInBypass}>` submit (the same
+  mechanism the email-login popup already uses), so the post-login redirect navigates correctly in
+  the Vercel build. The phone field is carried via a hidden input synced to the visible field.
+
 ## [web 0.14.4] — Security review hardening
 
 From a security review of the POC. No schema, RLS, or product-behaviour change — log/PII
