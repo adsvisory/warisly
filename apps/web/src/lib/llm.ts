@@ -51,7 +51,9 @@ async function chat(messages: unknown[]): Promise<DraftFields> {
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${serverEnv.OPENAI_API_KEY}` },
     body: JSON.stringify({ model: "gpt-4o-2024-08-06", messages, response_format: { type: "json_schema", json_schema: schema } }),
   });
-  if (!res.ok) throw new Error(`LLM ${res.status}: ${await res.text()}`);
+  // Status only — the error body can echo back the request (KTP image / financial
+  // screenshot / intake text), which must never reach logs. See no-access guarantee.
+  if (!res.ok) throw new Error(`LLM ${res.status}`);
   const json = await res.json();
   return JSON.parse(json.choices[0].message.content) as DraftFields;
 }
@@ -118,7 +120,9 @@ export async function extractScannedAsset(base64: string, mime: string): Promise
       response_format: { type: "json_schema", json_schema: extractSchema },
     }),
   });
-  if (!res.ok) throw new Error(`LLM ${res.status}: ${await res.text()}`);
+  // Status only — the error body can echo back the request (KTP image / financial
+  // screenshot / intake text), which must never reach logs. See no-access guarantee.
+  if (!res.ok) throw new Error(`LLM ${res.status}`);
   const json = await res.json();
   return JSON.parse(json.choices[0].message.content) as ExtractedAssetDraft;
 }
@@ -160,7 +164,9 @@ export async function recognizeKtp(base64: string, mime: string): Promise<KtpOcr
       response_format: { type: "json_schema", json_schema: ktpSchema },
     }),
   });
-  if (!res.ok) throw new Error(`LLM ${res.status}: ${await res.text()}`);
+  // Status only — the error body can echo back the request (KTP image / financial
+  // screenshot / intake text), which must never reach logs. See no-access guarantee.
+  if (!res.ok) throw new Error(`LLM ${res.status}`);
   const json = await res.json();
   return JSON.parse(json.choices[0].message.content) as KtpOcrResult;
 }
@@ -172,7 +178,8 @@ export async function transcribeAudio(base64: string, mime: string): Promise<str
   const res = await fetch("https://api.openai.com/v1/audio/transcriptions", {
     method: "POST", headers: { Authorization: `Bearer ${serverEnv.OPENAI_API_KEY}` }, body: form,
   });
-  if (!res.ok) throw new Error(`STT ${res.status}: ${await res.text()}`);
+  // Status only — never fold the response body (may echo the audio/transcript) into the error.
+  if (!res.ok) throw new Error(`STT ${res.status}`);
   const json = await res.json();
   return String(json.text ?? "");
 }

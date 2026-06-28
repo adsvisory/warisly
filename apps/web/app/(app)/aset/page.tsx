@@ -6,6 +6,7 @@ import {
   Building2,
   Coins,
   CreditCard,
+  FileText,
   HeartPulse,
   Landmark,
   Package,
@@ -18,7 +19,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { getRegistry, isFresh } from "@/services/assets";
 import { Eyebrow, H1, Estimate, FreshnessChip, SealedChip } from "@warisly/ui";
-import type { Asset } from "@warisly/db";
+import { listDrafts, type Asset } from "@warisly/db";
 
 const categoryIcons: Record<string, React.ReactNode> = {
   saham: <TrendingUp size={20} />,
@@ -73,6 +74,7 @@ export default async function AsetPage() {
   const t = await getTranslations();
   const supabase = await createClient();
   const reg = await getRegistry(supabase);
+  const drafts = await listDrafts(supabase, "pending");
   return (
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -81,7 +83,14 @@ export default async function AsetPage() {
           <H1>{t("nav.assets")}</H1>
           <p className="mt-2 font-serif text-[18px] leading-relaxed text-paper-muted">{t("common.reassure")}</p>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          <Link
+            href="/dosier"
+            className="inline-flex items-center gap-2 rounded-xl border border-paper-edge bg-panel px-4 py-3 font-sans text-sm font-medium text-tinta transition hover:border-emas"
+          >
+            <FileText size={16} />
+            {t("common.viewRecovery")}
+          </Link>
           <Link
             href="/aset/pindai"
             className="inline-flex items-center gap-2 rounded-xl border border-paper-edge bg-panel px-4 py-3 font-sans text-sm font-medium text-tinta transition hover:border-emas"
@@ -98,6 +107,14 @@ export default async function AsetPage() {
           </Link>
         </div>
       </div>
+
+      {drafts.length > 0 && (
+        <Link href="/aset/draf" className="mt-6 block">
+          <div className="flex items-center justify-between gap-3 rounded-2xl border border-emas/40 bg-panel px-4 py-3.5 transition hover:border-emas">
+            <p className="font-sans text-sm text-tinta">{t("beranda.draftsBanner", { count: drafts.length })}</p>
+          </div>
+        </Link>
+      )}
 
       <div className="mt-8 mb-3 flex items-center justify-between">
         <h2 className="font-display text-[22px] text-tinta">{t("assets.sectionAssets")}</h2>

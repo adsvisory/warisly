@@ -2,6 +2,24 @@
 
 All notable changes to Warisly. Semantic versioning `MAJOR.MINOR.PATCH`.
 
+## [web 0.14.4] — Security review hardening
+
+From a security review of the POC. No schema, RLS, or product-behaviour change — log/PII
+hygiene and input-robustness only.
+
+### Fixed
+- **No PII in error logs (no-access posture):** the LLM and STT clients (`lib/llm.ts`) no longer
+  fold the upstream API response body into the thrown `Error` — that body can echo back the
+  request (a KTP image, a financial screenshot, or intake text). Errors now carry the HTTP
+  status only. The WhatsApp webhook's background-structuring `catch` now logs the error **class**
+  (`e.name`) instead of the raw error object, so a thrown LLM/STT error can't carry intake PII
+  into Vercel logs.
+- **Token-format guard on public/token-gated lookups:** `getReleaseStatusByToken` (claim) and
+  `getTrusteeByToken` / `confirmTrusteeByToken` (deputy) now validate the UUID shape before
+  querying, so a malformed token returns null/false (→ `notFound`) instead of raising a Postgres
+  `invalid input syntax for type uuid` error that surfaced as an unhandled 500. Matches the
+  guard already present on `resolveOpenClaimByToken`.
+
 ## [web 0.14.2] — Dev login bypass for the POC
 
 Dev-only convenience, **non-production**. No schema, RLS, or production-behaviour change.
@@ -13,6 +31,12 @@ Dev-only convenience, **non-production**. No schema, RLS, or production-behaviou
 - **Offline seed script** `packages/db/scripts/seed-dev-user.mjs` (`pnpm --filter @warisly/db
   seed:dev-user +62…`) to create/refresh the dev user. It is the only thing that uses the
   service-role key, and it is an offline script — **not** a request path.
+- **Comprehensive demo content** seeded for the dev owner by default (pass `--no-content` to
+  skip): a verified, release-eligible "Budi Santoso" profile with a release rule, 18 assets
+  across most categories (incl. liabilities), 3 trustees (quorum met), 4 recipients, 3 wishes,
+  and 2 pending WhatsApp intake drafts. Re-running resets this fixture to a known state. All
+  rows are written via the service-role client in the offline script (RLS bypass is expected
+  there); only non-secret identifiers are stored — no passwords/PINs/seed phrases.
 
 ### Safety / no-access posture
 - The bypass signs in with the **anon client** (`signInWithPassword`); the service-role key

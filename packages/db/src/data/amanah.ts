@@ -1,5 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+// confirm_token is a uuid column; guard the format so an invalid token returns null/false
+// instead of raising a Postgres "invalid input syntax for type uuid" error (→ unhandled 500).
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export type TrusteeRole = "primary" | "backup";
 export type TrusteeStatus = "invited" | "confirmed" | "declined";
 export type ContactType = "whatsapp" | "phone" | "email";
@@ -37,11 +41,13 @@ export async function deleteTrustee(supabase: SupabaseClient, id: string): Promi
   if (error) throw new Error(`deleteTrustee failed: ${error.message}`);
 }
 export async function getTrusteeByToken(supabase: SupabaseClient, token: string): Promise<Trustee | null> {
+  if (!UUID_RE.test(token)) return null;
   const { data, error } = await supabase.from("wrs_trustees").select("id, owner_id, name, contact_type, contact_value, role, status, confirm_token, confirmed_at").eq("confirm_token", token).maybeSingle();
   if (error) throw new Error(`getTrusteeByToken failed: ${error.message}`);
   return data ? toTrustee(data) : null;
 }
 export async function confirmTrusteeByToken(supabase: SupabaseClient, token: string): Promise<boolean> {
+  if (!UUID_RE.test(token)) return false;
   const { data, error } = await supabase.from("wrs_trustees").update({ status: "confirmed", confirmed_at: new Date().toISOString() }).eq("confirm_token", token).eq("status", "invited").select("id");
   if (error) throw new Error(`confirmTrusteeByToken failed: ${error.message}`);
   return (data?.length ?? 0) > 0;

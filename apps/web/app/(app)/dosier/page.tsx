@@ -49,7 +49,7 @@ export default async function DosierPage() {
                   <p className="mt-1 font-sans text-[12.5px] text-ink-muted print:text-paper-muted">{t("assets.identifierShown")}: {asset.identifier}</p>
                 )}
               </div>
-              <Estimate value={asset.valueEstimate} lastReviewedAt={asset.lastReviewedAt} />
+              <Estimate value={asset.valueEstimate} lastReviewedAt={asset.lastReviewedAt} estimateLabel={t("assets.estimate")} reviewedLabel={t("assets.lastReviewed")} />
             </div>
 
             {playbook ? (
@@ -87,7 +87,7 @@ export default async function DosierPage() {
             {dossier.liabilities.map((l) => (
               <div key={l.id} className="flex items-center justify-between gap-4 rounded-2xl border border-paper-edge bg-panel p-5">
                 <p className="font-display text-[18px] text-tinta">{l.provider ?? t(`assets.categories.${l.category}`)}</p>
-                <Estimate value={l.valueEstimate} lastReviewedAt={l.lastReviewedAt} />
+                <Estimate value={l.valueEstimate} lastReviewedAt={l.lastReviewedAt} estimateLabel={t("assets.estimate")} reviewedLabel={t("assets.lastReviewed")} />
               </div>
             ))}
           </div>

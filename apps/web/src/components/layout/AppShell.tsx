@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Home, Wallet, Users, FileText, Clock, User, Monitor, Smartphone, type LucideIcon } from "lucide-react";
+import { Home, Wallet, Users, User, Monitor, Smartphone, type LucideIcon } from "lucide-react";
 import { Seal } from "@warisly/ui";
 import { signOut } from "@/app/actions/auth";
 import { DeviceFrame } from "./DeviceFrame";
@@ -45,8 +45,6 @@ const NAV = [
   { href: "/beranda", key: "home", Icon: Home, mobile: true },
   { href: "/aset", key: "assets", Icon: Wallet, mobile: true },
   { href: "/amanah", key: "amanah", Icon: Users, mobile: true },
-  { href: "/dosier", key: "dosier", Icon: FileText, mobile: false },
-  { href: "/rilis", key: "releaseRule", Icon: Clock, mobile: false },
   { href: "/profil", key: "profile", Icon: User, mobile: true },
 ] as const;
 

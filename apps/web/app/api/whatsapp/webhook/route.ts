@@ -43,7 +43,8 @@ export async function POST(req: Request) {
   after(async () => {
     for (const intakeId of toStructure) {
       try { await structureIntakeMessage(intakeId); }
-      catch (e) { console.error("structureIntakeMessage failed", intakeId, e); }
+      // Log the error class only — a thrown LLM/STT error must not carry intake PII into logs.
+      catch (e) { console.error("structureIntakeMessage failed", intakeId, e instanceof Error ? e.name : "error"); }
     }
   });
 

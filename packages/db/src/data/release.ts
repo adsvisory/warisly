@@ -1,5 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+// claim_token is a uuid column; guard the format so an invalid/garbage token returns
+// null (→ notFound) instead of raising a Postgres "invalid input syntax for type uuid"
+// error that would surface as an unhandled 500.
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export type ReleaseStatus =
   | "initiated" | "documents_submitted" | "identity_verified"
   | "under_review" | "approved" | "waiting_period"
@@ -54,6 +59,7 @@ export async function getRequestByToken(supabase: SupabaseClient, token: string)
 // is reserved for trusted server-internal callers; the anonymous /klaim/[token] page
 // must not be handed pre-release sensitive fields.
 export async function getReleaseStatusByToken(supabase: SupabaseClient, token: string): Promise<{ status: ReleaseStatus } | null> {
+  if (!UUID_RE.test(token)) return null;
   const { data, error } = await supabase.from("wrs_release_requests").select("status").eq("claim_token", token).maybeSingle();
   if (error) throw new Error(`getReleaseStatusByToken failed: ${error.message}`);
   return data ? { status: data.status as ReleaseStatus } : null;
@@ -82,10 +88,6 @@ export async function setRequestIdentity(
 }
 
 // ── Heir KTP candidate-identity pre-fill (#12b-iii) ────────────────────────────
-// claim_token is a uuid; guard the format so an invalid token returns null instead of
-// raising a Postgres "invalid input syntax for type uuid" error.
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
 // Resolve a claim by its heir token AND confirm it still accepts identity input. Returns the
 // claim id + estate owner_id (the latter is used only for FK-valid observability logging — a
 // claim id would violate wrs_api_log.owner_id's FK to wrs_owners). Use a service-role client:

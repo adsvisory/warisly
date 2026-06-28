@@ -1,0 +1,18 @@
+-- Migration: 2026-06-28_0015_asset_recovery_notes.sql
+--
+-- Adds an owner-authored, per-asset recovery-instructions field — the specific, NON-SECRET
+-- guidance an heir needs to claim THIS asset (e.g. "RDN is linked to BCA; ask for RM Budi
+-- at the Pondok Indah branch; the physical gold is in safe-deposit box #123"). This is the
+-- editable companion to the generic, versioned category playbooks in wrs_playbooks.
+--
+-- CARDINAL GUARD: this is map-and-playbook text, NEVER keys. It must never hold a password,
+-- PIN, OTP, or login token. The form carries an explicit "never your password" warning, and
+-- sensitive identifiers remain a Phase-2 client-side-encryption concern (Warisly cannot read).
+--
+-- Safety: additive + nullable text column. No backfill, no table rewrite, no lock/downtime,
+-- fully reversible (drop column). RLS is UNCHANGED and needs no new policy: the existing
+-- row-level owner policies (assets_select/insert/update/delete_own) and the post-release lock
+-- trigger (wrs_assets_lock — edits only while 'sealed') already govern every column of the
+-- row, so recovery_notes inherits them. Heir reads continue through the service-role release
+-- path, which sees all columns.
+alter table wrs_assets add column recovery_notes text;
