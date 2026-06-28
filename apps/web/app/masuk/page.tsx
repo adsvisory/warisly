@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { sendOtp, verifyOtp, signInPassword, signInBypass } from "@/app/actions/auth";
 import { PublicLangToggle } from "@/components/PublicLangToggle";
@@ -15,6 +15,13 @@ export default function MasukPage() {
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [emailOpen, setEmailOpen] = useState(false);
+
+  // Surface a server-action failure (it redirects to /masuk?error=…) so dev-login
+  // problems are visible — "disabled" = gate off (env), "invalid" = bad credentials.
+  useEffect(() => {
+    const e = new URLSearchParams(window.location.search).get("error");
+    if (e) setError(e);
+  }, []);
 
   async function onSend(formData: FormData) {
     setPending(true); setError(null);

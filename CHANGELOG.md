@@ -13,6 +13,10 @@ Dev-only bugfix, **non-production**. No schema, RLS, or product-behaviour change
   forgiving `next dev`). Replaced it with a real `<form action={signInBypass}>` submit (the same
   mechanism the email-login popup already uses), so the post-login redirect navigates correctly in
   the Vercel build. The phone field is carried via a hidden input synced to the visible field.
+- **Dev-login failures are now visible.** Both dev sign-in paths redirect to `/masuk?error=…` on
+  failure but the page never displayed it (silent reload). `/masuk` now reads the `error` query
+  param and shows a message — `disabled` (gate off in this environment) vs `invalid` (bad
+  credentials / dev user not seeded) — making Vercel misconfig diagnosable instead of silent.
 
 ## [web 0.14.4] — Security review hardening
 

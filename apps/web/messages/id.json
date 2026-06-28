@@ -30,7 +30,9 @@
     "signInEmail": "Masuk (email)",
     "phoneRequired": "Nomor telepon wajib diisi.",
     "sendFailed": "Gagal mengirim kode. Coba lagi.",
-    "wrongCode": "Kode salah atau kedaluwarsa."
+    "wrongCode": "Kode salah atau kedaluwarsa.",
+    "invalid": "Login dev gagal — periksa nomor/kredensial, atau jalankan seed dev user.",
+    "disabled": "Login dev tidak aktif di lingkungan ini."
   },
   "beranda": {
     "coldStart": "Belum ada aset tercatat. Mulai dengan satu — cukup beberapa detik.",

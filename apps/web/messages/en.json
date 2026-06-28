@@ -30,7 +30,9 @@
     "signInEmail": "Sign in (email)",
     "phoneRequired": "Phone number is required.",
     "sendFailed": "Failed to send the code. Please try again.",
-    "wrongCode": "Wrong or expired code."
+    "wrongCode": "Wrong or expired code.",
+    "invalid": "Dev login failed — check the number/credentials, or seed the dev user.",
+    "disabled": "Dev login is not enabled in this environment."
   },
   "beranda": {
     "coldStart": "No assets recorded yet. Start with one — it takes just a few seconds.",
