@@ -11,7 +11,6 @@ import {
   Landmark,
   Package,
   Plus,
-  ScanLine,
   Shield,
   TrendingUp,
   Wallet,
@@ -93,13 +92,6 @@ export default async function AsetPage() {
           </Link>
           <Link
             href="/aset/pindai"
-            className="inline-flex items-center gap-2 rounded-xl border border-paper-edge bg-panel px-4 py-3 font-sans text-sm font-medium text-tinta transition hover:border-emas"
-          >
-            <ScanLine size={16} />
-            {t("scan.cta")}
-          </Link>
-          <Link
-            href="/aset/baru"
             className="inline-flex items-center gap-2 rounded-xl bg-tinta px-5 py-3 font-sans text-sm font-semibold text-ink-text transition hover:bg-tinta-hover"
           >
             <Plus size={16} />
@@ -124,7 +116,7 @@ export default async function AsetPage() {
           {t("assets.empty")}
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-paper-edge bg-panel">
+        <div className="stagger-children overflow-hidden rounded-2xl border border-paper-edge bg-panel">
           {reg.assets.map((a) => <AssetRow key={a.id} a={a} t={t} />)}
         </div>
       )}
@@ -137,7 +129,7 @@ export default async function AsetPage() {
           {t("assets.empty")}
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-paper-edge bg-panel">
+        <div className="stagger-children overflow-hidden rounded-2xl border border-paper-edge bg-panel">
           {reg.liabilities.map((a) => <AssetRow key={a.id} a={a} t={t} />)}
         </div>
       )}

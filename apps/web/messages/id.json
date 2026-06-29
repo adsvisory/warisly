@@ -9,8 +9,18 @@
     "remove": "Hapus",
     "cancel": "Batal"
   },
-  "nav": { "home": "Beranda", "assets": "Aset", "amanah": "Amanah", "dosier": "Dosier", "releaseRule": "Aturan rilis", "profile": "Profil" },
-  "landing": { "tagline": "Waris aman, keluarga tenang." },
+  "nav": {
+    "home": "Beranda",
+    "assets": "Aset",
+    "add": "Tambah",
+    "amanah": "Amanah",
+    "dosier": "Dosier",
+    "releaseRule": "Aturan rilis",
+    "profile": "Profil"
+  },
+  "landing": {
+    "tagline": "Waris aman, keluarga tenang."
+  },
   "masuk": {
     "title": "Masuk",
     "subtitle": "Kami tidak pernah minta password Anda. — cukup nomor telepon.",
@@ -60,6 +70,14 @@
     "stale": "Perlu ditinjau",
     "sealed": "Tersegel",
     "newTitle": "Tambah aset",
+    "chooser": {
+      "subtitle": "Pilih cara menambahkan aset. Anda selalu memeriksa sebelum disimpan.",
+      "scanTitle": "Pindai",
+      "scanDesc": "Punya screenshot saldo atau dokumen? Foto saja, biar kami yang mengisinya.",
+      "manualTitle": "Isi manual",
+      "manualDesc": "Ketik sendiri, langkah demi langkah.",
+      "recommended": "Disarankan"
+    },
     "editTitle": "Ubah aset",
     "edit": "Ubah",
     "archive": "Arsipkan",
@@ -85,12 +103,27 @@
       "notes": "Catatan untuk keluarga"
     },
     "categories": {
-      "saham": "Saham", "reksa_dana": "Reksa Dana", "bank": "Rekening Bank", "e_wallet": "E-wallet",
-      "emas": "Emas", "crypto": "Crypto", "asuransi": "Asuransi", "bpjs": "BPJS",
-      "properti": "Properti", "fisik": "Aset Fisik", "utang": "Utang", "lainnya": "Lainnya",
-      "obligasi": "SBN & Obligasi", "p2p": "Pendanaan P2P", "luar_negeri": "Investasi Luar Negeri",
-      "pensiun": "Dana Pensiun", "bisnis": "Bisnis Digital", "domain": "Domain & Website",
-      "ip": "Kekayaan Intelektual", "poin": "Poin & Loyalitas", "game": "Akun Game"
+      "saham": "Saham",
+      "reksa_dana": "Reksa Dana",
+      "bank": "Rekening Bank",
+      "e_wallet": "E-wallet",
+      "emas": "Emas",
+      "crypto": "Crypto",
+      "asuransi": "Asuransi",
+      "bpjs": "BPJS",
+      "properti": "Properti",
+      "fisik": "Aset Fisik",
+      "utang": "Utang",
+      "lainnya": "Lainnya",
+      "obligasi": "SBN & Obligasi",
+      "p2p": "Pendanaan P2P",
+      "luar_negeri": "Investasi Luar Negeri",
+      "pensiun": "Dana Pensiun",
+      "bisnis": "Bisnis Digital",
+      "domain": "Domain & Website",
+      "ip": "Kekayaan Intelektual",
+      "poin": "Poin & Loyalitas",
+      "game": "Akun Game"
     }
   },
   "drafts": {
@@ -109,10 +142,23 @@
   "scan": {
     "cta": "Pindai",
     "eyebrow": "Aset baru",
-    "title": "Pindai aset",
-    "intro": "Foto layar aplikasi atau dokumen — kami bantu mengisinya. Anda selalu memeriksa sebelum disimpan.",
+    "title": "Tambah aset",
+    "intro": "Pindai layar, unggah foto, atau isi sendiri — Anda selalu memeriksa sebelum disimpan.",
     "takePhoto": "Ambil foto",
     "takePhotoHint": "Foto layar aplikasi (mis. Ajaib) atau dokumen (mis. sertifikat).",
+    "liveScan": "Pindai langsung",
+    "liveScanHint": "Kamera mendeteksi tepi dokumen dan memotret otomatis saat sudah pas.",
+    "recommended": "Disarankan",
+    "manual": "Isi manual",
+    "manualHint": "Ketik sendiri, langkah demi langkah.",
+    "camStarting": "Menyiapkan kamera…",
+    "camAim": "Arahkan ke layar aplikasi atau dokumen",
+    "camHold": "Tahan — jangan bergerak",
+    "camManual": "Ambil foto",
+    "camTorch": "Senter",
+    "camClose": "Tutup",
+    "camDenied": "Izin kamera ditolak. Anda masih bisa mengunggah dari galeri.",
+    "camError": "Kamera tidak dapat diakses. Coba unggah dari galeri.",
     "fromGallery": "Unggah dari galeri",
     "processing": "Memproses gambar…",
     "reading": "Membaca gambar…",
@@ -181,7 +227,13 @@
     "wasiatNote": "Wasiat untuk pihak non-ahli-waris dibatasi maksimal ⅓ dari harta. Ini pengingat informasional, bukan nasihat hukum.",
     "wishPlaceholder": "Tulis niat / wasiat…",
     "add": "Tambah",
-    "rel": { "pasangan": "Pasangan", "anak": "Anak", "orang_tua": "Orang Tua", "saudara": "Saudara", "lainnya": "Lainnya" }
+    "rel": {
+      "pasangan": "Pasangan",
+      "anak": "Anak",
+      "orang_tua": "Orang Tua",
+      "saudara": "Saudara",
+      "lainnya": "Lainnya"
+    }
   },
   "wali": {
     "back": "← Amanah",
@@ -194,9 +246,20 @@
     "inviteHelp": "Bagikan tautan undangan ini ke wali:",
     "copyLink": "Salin tautan undangan",
     "copied": "Tersalin!",
-    "contact": { "whatsapp": "WhatsApp", "phone": "Telepon", "email": "Email" },
-    "status": { "invited": "Menunggu", "confirmed": "Terkonfirmasi", "declined": "Menolak" },
-    "role": { "primary": "Utama", "backup": "Cadangan" }
+    "contact": {
+      "whatsapp": "WhatsApp",
+      "phone": "Telepon",
+      "email": "Email"
+    },
+    "status": {
+      "invited": "Menunggu",
+      "confirmed": "Terkonfirmasi",
+      "declined": "Menolak"
+    },
+    "role": {
+      "primary": "Utama",
+      "backup": "Cadangan"
+    }
   },
   "waliConfirm": {
     "title": "Undangan Wali Amanah",
@@ -206,7 +269,9 @@
   },
   "profil": {
     "eyebrow": "Profil",
-    "title": "Identitas & keamanan",
+    "title": "Akun",
+    "amanahCard": "Amanah",
+    "amanahCta": "Wali, ahli waris & wasiat →",
     "kycLabel": "Verifikasi identitas",
     "verified": "Terverifikasi",
     "notVerified": "Belum terverifikasi",
@@ -231,7 +296,11 @@
     "quorumNote": "Kuorum wali: butuh {required} dari {of} wali untuk memulai proses rilis. Atur wali di Amanah.",
     "saveBtn": "Simpan aturan",
     "back": "← Profil",
-    "ch": { "whatsapp": "WhatsApp", "email": "Email", "sms": "SMS" }
+    "ch": {
+      "whatsapp": "WhatsApp",
+      "email": "Email",
+      "sms": "SMS"
+    }
   },
   "dosier": {
     "title": "Panduan Pemulihan",

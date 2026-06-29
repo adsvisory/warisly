@@ -1,14 +1,8 @@
-import { getTranslations } from "next-intl/server";
-import { Eyebrow, H1 } from "@warisly/ui";
-import { AssetForm } from "@/components/AssetForm";
+import { redirect } from "next/navigation";
 
-export default async function BaruPage() {
-  const t = await getTranslations();
-  return (
-    <div>
-      <Eyebrow>{t("common.brand")}</Eyebrow>
-      <H1>{t("assets.newTitle")}</H1>
-      <AssetForm />
-    </div>
-  );
+// The method picker was folded into the single "Tambah aset" screen at /aset/pindai
+// (scan / upload / manual in one step). Kept as a redirect so older links still resolve;
+// /aset/baru/manual remains the manual form.
+export default function BaruPage() {
+  redirect("/aset/pindai");
 }

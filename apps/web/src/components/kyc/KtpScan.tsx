@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Camera, ImageUp, ShieldCheck } from "lucide-react";
+import { Camera, ImageUp, ShieldCheck, Loader2 } from "lucide-react";
 import { fileToDownscaledBase64 } from "@/lib/image";
 import type { KtpDraft } from "@/lib/prompts/ktp-ocr";
 
@@ -79,7 +79,11 @@ export function KtpScan({
           <span>{t("fromGallery")}</span>
         </button>
 
-        {phase === "reading" && <p className="font-sans text-[13px] text-paper-muted">{t("reading")}</p>}
+        {phase === "reading" && (
+          <p className="flex items-center gap-2 font-sans text-[13px] text-paper-muted">
+            <Loader2 size={14} className="animate-spin text-emas" aria-hidden /> {t("reading")}
+          </p>
+        )}
         {err && <p className="font-sans text-[13px] text-bata">{err}</p>}
 
         <p className="mt-1 font-sans text-[12.5px] leading-relaxed text-paper-muted">{t("captureReassure")}</p>
@@ -122,8 +126,9 @@ export function KtpScan({
         type="button"
         disabled={phase === "saving" || !nikOk || !v.name}
         onClick={save}
-        className="rounded-xl bg-nyala px-6 py-3 font-sans text-[15px] font-semibold text-white transition hover:bg-nyala-pressed active:bg-nyala-pressed disabled:bg-paper-edge disabled:text-paper-muted"
+        className="inline-flex items-center justify-center gap-2 rounded-xl bg-nyala px-6 py-3 font-sans text-[15px] font-semibold text-white transition hover:bg-nyala-pressed active:scale-[0.98] disabled:bg-paper-edge disabled:text-paper-muted disabled:active:scale-100"
       >
+        {phase === "saving" && <Loader2 size={16} className="animate-spin" aria-hidden />}
         {phase === "saving" ? t("saving") : t("save")}
       </button>
     </div>

@@ -2,6 +2,179 @@
 
 All notable changes to Warisly. Semantic versioning `MAJOR.MINOR.PATCH`.
 
+## [web 0.17.3] — Full-bleed portrait live scanner
+
+The live scanner now fills the phone screen in portrait instead of showing a letterboxed
+landscape band — the right shape for the screenshots and documents owners actually scan.
+**UX-only. No schema, RLS, API, release-engine, or no-access change.** Pixels are still
+analysed and downscaled on-device; nothing leaves the phone until the same confirmed
+extraction.
+
+### Changed
+- **`CameraScanner` preview is now `object-cover` (full-bleed portrait).** The frame is
+  cropped to the visible portrait slice consistently across all three uses: the preview,
+  the edge-detection analysis (so the gold guide and auto-capture match what's on screen),
+  and the saved still (so the capture is what the owner framed, not the wider sensor
+  frame). A shared `coverCrop()` computes that slice.
+- **Requests a higher-res rear frame** (`width 1920` / `height 1080`, `aspectRatio 9/16`)
+  so the cropped portrait strip stays sharp. Browsers that ignore the hints just return
+  their native orientation, which the cover-crop handles either way.
+- **`frameToDownscaledBase64`** gains an optional source `crop` so the capture can grab
+  just the on-screen region (canvas output still carries no EXIF).
+
+## [web 0.17.2] — Center "add asset" button on the mobile bottom bar
+
+The mobile bottom bar now leads with the action owners take most: a raised gold **+
+Tambah** button floats in the center between the two pillars (Beranda · Aset), linking
+straight to the single add-asset screen (`/aset/pindai`). **UX-only. No schema, RLS,
+API, release-engine, or no-access change.**
+
+### Changed
+- **`BottomNav`** — restructured to a three-slot bar (left pillar · raised add FAB ·
+  right pillar). The center button is a gold circle with a `+` glyph that rises above
+  the bar (with a `ring-kertas` halo so it reads as floating) and a "Tambah" label,
+  wired to `/aset/pindai`. Desktop is unaffected (the bar is mobile/preview-only).
+- **`nav.add`** copy added (`id`: "Tambah", `en`: "Add"). Labelled "Tambah" rather than
+  "Aset" to avoid duplicating the asset-list tab beside it.
+
+## [web 0.17.1] — One screen to add an asset (scan · upload · manual)
+
+Adding an asset is now a single step. The separate method picker is retired: every
+"Tambah aset" entry lands straight on the capture screen, which now offers all three
+options as one-tap tiles — **Pindai langsung** (live scanner, recommended), **Unggah
+dari galeri**, and **Isi manual**. **No schema, RLS, API, or product-behaviour change.
+No new credential or account-access path — the no-access promise is intact.** All paths
+still produce a draft the owner confirms before anything is saved (Cardinal 6).
+
+### Changed
+- **`/aset/pindai` is the single "Tambah aset" screen.** `ScanCapture` gains an optional
+  `manualHref` that renders a third "Isi manual" tile (→ `/aset/baru/manual`); the live
+  scan tile carries a "Disarankan" badge. Page retitled "Tambah aset".
+- **Every add-asset entry point** (beranda ×2, asset-list header) now links directly to
+  `/aset/pindai`, removing the intermediate picker tap.
+- **`/aset/baru` now redirects to `/aset/pindai`** — the two-tile picker from 0.15.1 is
+  gone; `/aset/baru/manual` is unchanged. Gallery and manual must open from a direct tap,
+  so a single in-place screen is genuinely the fewest steps (no deep-link auto-open).
+
+## [web 0.17.0] — Two-pillar navigation with avatar account access
+
+Primary navigation is now just the two pillars an owner returns to — **Beranda** and
+**Aset**. Account-level, set-once concerns (Amanah, release rule, identity, language)
+move behind the profile avatar at the foot of the desktop rail and in a new slim mobile
+top bar, both linking to `/profil`. **No schema, RLS, API, release-engine, or
+no-access change — this is pure information architecture.** Amanah, release rule, and
+the `/amanah` + `/rilis` routes are untouched and still reachable; they're just entered
+from the account hub now instead of the nav.
+
+### Changed
+- **`AppShell`** — `NAV` trimmed to Beranda + Aset. The desktop rail's sign-out footer
+  is replaced by an avatar (real initials from `wrs_owners.full_name`, falling back to a
+  user glyph) that links to `/profil` and lights up for the whole account area
+  (`/profil`, `/amanah`, `/rilis`). Sign-out continues to live on the profile page.
+- **`profil`** — now an account hub: an Amanah card (→ trustees, heirs, wishes) sits
+  above identity verification, release rule, and language. Page title broadened to
+  "Akun" / "Account".
+
+### Added
+- **Mobile top bar** — a slim Seal-and-avatar header (shown on small viewports and in
+  the phone preview) so the account hub is reachable without a Profile nav tab.
+- **`getOwnerIdentity`** (`@warisly/db`) — RLS-bound read of the owner's non-secret
+  `full_name` + `phone` for the avatar. No account-access data.
+
+## [web 0.16.0] — Live scanner with edge-detection auto-capture
+
+The asset scan now opens a real camera preview that finds the document's edges and
+captures on its own once the frame is sharp, filled, and held steady. **No schema,
+RLS, API, or product-behaviour change. No new credential or account-access path — the
+no-access promise is intact.** The still is downscaled on-device (stripping EXIF/GPS)
+and still runs through the same extract → review → confirm flow, so nothing is saved
+until the owner confirms (Cardinal 6).
+
+### Added
+- **`CameraScanner`** — a full-screen live camera (`getUserMedia`, rear lens) that runs
+  an in-browser Sobel edge detector on each frame (`lib/edge-detect.ts`, a pure,
+  dependency-free analyser on a 192px downscaled copy). A gold guide snaps to the
+  detected document; when the frame is in focus, fills the view, and the hand is steady
+  for ~0.5s it auto-captures. A manual shutter and a torch toggle (where supported) are
+  always available. All pixel analysis is local — nothing is uploaded until the
+  confirmed extraction, same as before.
+- **`frameToDownscaledBase64`** in `lib/image.ts` — downscales a `<video>`/canvas frame
+  to ≤1600px JPEG (canvas output carries no EXIF), mirroring the existing file path.
+
+### Changed
+- **`ScanCapture` now leads with "Pindai langsung" (live scan)** when `getUserMedia` is
+  available, with gallery upload alongside it. Devices without camera-stream support
+  fall back to the previous `<input capture>` tile, so the flow still works everywhere.
+
+## [web 0.15.2] — Loaders on the login screen
+
+Extends the 0.15.0 loading layer to `/masuk`. UX-only. **No schema, RLS, API, or
+product-behaviour change. No new credential or account-access path — the no-access
+promise is intact.**
+
+### Changed
+- **Sign-in buttons now show an inline spinner while submitting** and disable to
+  block double-submits. Phone "Kirim kode" and OTP "Verifikasi" reuse their
+  existing `pending` state; the dev bypass and dev email-login forms (direct
+  server actions) use `SubmitButton` (`useFormStatus`). Primary buttons also pick
+  up the same subtle press-scale used app-wide.
+
+## [web 0.15.1] — One "Tambah aset" with a scan-or-manual picker
+
+Adding an asset now starts with a choice instead of two competing header buttons.
+**No schema, RLS, API, or product-behaviour change. No new credential or
+account-access path — the no-access promise is intact.** Both paths still produce
+a draft the owner confirms before anything is saved (Cardinal 6).
+
+### Changed
+- **`/aset/baru` is now a method picker** — two tiles: **Pindai** (recommended;
+  routes to the existing `/aset/pindai` scan flow) and **Isi manual** (the
+  existing `AssetForm`, moved to `/aset/baru/manual`). Surfaces the lower-friction
+  scan path as the default while keeping manual one tap away — important for
+  assets with no screenshot (physical gold, property, debts).
+- **Asset list header trimmed** from three buttons to two: the standalone
+  "Pindai" button is gone (now inside the picker); "Tambah aset" → the picker,
+  "Lihat panduan" unchanged. Every "add" entry point (beranda included) routes
+  through the same picker.
+- Reuses the existing no-access reassurance copy on the picker screen.
+
+### Added
+- `assets.chooser` copy block in `id`/`en` (Bahasa-first, warm, non-morbid).
+
+## [web 0.15.0] — Loading states + premium motion layer
+
+UX-only polish: the app now tells you when it's working, and content settles in
+instead of snapping. **No schema, RLS, API, or product-behaviour change. No new
+credential or account-access path — the no-access promise is intact.**
+
+### Added
+- **Top progress bar on navigation** (`nextjs-toploader` in the root layout). A
+  2px lit-fuse bar — no spinner — gives instant "we heard you" feedback on every
+  route change: a gold gradient trail brightening to a white-hot tip, with a
+  flickering amber-ember spark at the leading edge (styled via `#nprogress` in
+  globals.css, gated behind `prefers-reduced-motion`). Keeps a slow load visibly
+  burning rather than looking parked near the end.
+- **Route skeletons** — `loading.tsx` for `/beranda`, `/aset`, `/dosier`, and
+  `/profil`. While each page's data loads, a shimmer placeholder that mirrors the
+  real layout streams in (Suspense), so the page lands without shifting (no CLS).
+- **`Skeleton` primitive** (`@warisly/ui`) — parchment base with a slow, soft
+  sweep in the warm-paper palette. Decorative, hidden from the a11y tree.
+- **`SubmitButton`** — reflects the parent `<form action>` pending state via
+  `useFormStatus`: shows an inline spinner and disables to block double-submits.
+  Wired into the asset form and the profile (verify / sign-out) forms.
+- **Inline spinners** on the AI/OCR waits where "is it loading?" hurt most: KTP
+  scan (reading / saving), asset scan capture + review, and claim-doc upload.
+
+### Changed
+- **Shared `Button`** gains a `loading` prop (inline spinner + auto-disable) and a
+  subtle press-scale (`active:scale-[0.98]`).
+- **Page entrance + list stagger** — pages gently fade in on navigation; asset
+  lists and the home summary reveal their rows in a soft stagger.
+
+### Accessibility
+- A global `prefers-reduced-motion` guard neutralises all animation/transition
+  while keeping content (and skeletons) fully visible.
+
 ## [web 0.14.6] — Allow the dev bypass on the production deployment (POC)
 
 Dev-login posture change for the POC. No schema or RLS change.

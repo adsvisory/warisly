@@ -74,7 +74,7 @@ export default function ScanPage() {
       {err && <p className="mt-4 font-sans text-[13px] text-bata">{err}</p>}
 
       <div className="mt-6">
-        {step === "capture" && <ScanCapture onCaptured={onCaptured} />}
+        {step === "capture" && <ScanCapture onCaptured={onCaptured} manualHref="/aset/baru/manual" />}
         {step === "extracting" && <p className="font-sans text-[14px] text-paper-muted">{t("reading")}</p>}
         {(step === "review" || step === "saving") && draft && (
           <ScanReview draft={draft} saving={step === "saving"} onConfirm={onConfirm} />

@@ -12,9 +12,65 @@ body {
 
 h1, h2, h3 { font-family: var(--font-fraunces), Georgia, serif; line-height: 1.1; }
 
-/* Inside the phone mockup, viewport-based responsive prefixes (sm:, md:) key off
-   the desktop viewport, not the ~400px frame. Force multi-column form grids to
-   stack so the mockup previews the real mobile layout faithfully. Real mobile
-   devices (<640px viewport) already stack via the absence of the sm: breakpoint. */
-.phone-frame .asset-grid,
-.phone-frame .frame-stack { grid-template-columns: minmax(0, 1fr) !important; }
+/* The mobile preview (DeviceFrame) renders the route inside an iframe, so it gets
+   a real ~400px viewport and viewport-based prefixes (sm:, md:) evaluate exactly
+   as on a phone. No layout overrides are needed here anymore. */
+
+/* ── Premium motion layer ──────────────────────────────────────────────────
+   Subtle, meaningful motion only. A staggered entrance lets list items "settle"
+   into place one after another instead of snapping in all at once. */
+.stagger-children > * { @apply animate-rise-in; }
+.stagger-children > *:nth-child(1)   { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2)   { animation-delay: 45ms; }
+.stagger-children > *:nth-child(3)   { animation-delay: 90ms; }
+.stagger-children > *:nth-child(4)   { animation-delay: 135ms; }
+.stagger-children > *:nth-child(5)   { animation-delay: 180ms; }
+.stagger-children > *:nth-child(6)   { animation-delay: 225ms; }
+.stagger-children > *:nth-child(7)   { animation-delay: 270ms; }
+.stagger-children > *:nth-child(n+8) { animation-delay: 300ms; }
+
+/* Top progress bar (nextjs-toploader) styled like a lit fuse: a spent/burnt tail
+   that brightens into a white-hot leading tip, with a flickering ember spark at
+   the head (the peg is nprogress's leading-edge element, always at the growing
+   front). The package owns the crawl; these visuals live here because the `color`
+   prop only takes one colour. !important overrides the package's inline styles. */
+#nprogress .bar {
+  height: 2px !important;
+  /* gold trail (left) → white-hot tip (right, the leading/growing edge) */
+  background: linear-gradient(90deg, #b5863c 0%, #c9a45e 38%, #dcb868 70%, #f7ecc0 100%) !important;
+  box-shadow: 0 0 10px rgba(224, 169, 63, 0.7), 0 0 4px rgba(181, 134, 60, 0.6) !important;
+}
+#nprogress .peg {
+  opacity: 1 !important;
+  box-shadow: 0 0 14px 2px #f7ecc0, 0 0 26px 6px #e0a93f, 0 0 40px 10px rgba(217, 124, 39, 0.5) !important;
+}
+/* Motion only when the user allows it; reduced-motion keeps a steady lit bar. */
+@media (prefers-reduced-motion: no-preference) {
+  #nprogress .bar { animation: fuseEmber 2.2s ease-in-out infinite !important; }
+  #nprogress .peg { animation: fuseFlicker 0.85s ease-in-out infinite !important; }
+}
+/* Gentle ember breathing along the whole fuse. */
+@keyframes fuseEmber {
+  0%, 100% { box-shadow: 0 0 7px rgba(224, 169, 63, 0.5), 0 0 3px rgba(181, 134, 60, 0.45); }
+  50% { box-shadow: 0 0 16px rgba(224, 169, 63, 0.95), 0 0 7px rgba(217, 124, 39, 0.7); }
+}
+/* The spark at the tip flickers like a burning fuse — smooth, not strobing. */
+@keyframes fuseFlicker {
+  0%   { box-shadow: 0 0 12px 2px #f7ecc0, 0 0 22px 5px #e0a93f, 0 0 34px 8px rgba(217, 124, 39, 0.45); }
+  30%  { box-shadow: 0 0 18px 3px #fff6dc, 0 0 32px 8px #e6b34a, 0 0 46px 12px rgba(217, 124, 39, 0.6); }
+  45%  { box-shadow: 0 0 11px 1px #f7ecc0, 0 0 20px 4px #e0a93f, 0 0 30px 7px rgba(217, 124, 39, 0.4); }
+  65%  { box-shadow: 0 0 20px 3px #fff6dc, 0 0 36px 9px #e6b34a, 0 0 50px 13px rgba(217, 124, 39, 0.65); }
+  82%  { box-shadow: 0 0 13px 2px #f7ecc0, 0 0 24px 5px #e0a93f, 0 0 36px 9px rgba(217, 124, 39, 0.5); }
+  100% { box-shadow: 0 0 12px 2px #f7ecc0, 0 0 22px 5px #e0a93f, 0 0 34px 8px rgba(217, 124, 39, 0.45); }
+}
+
+/* Honour the OS "reduce motion" setting: neutralise animation/transition but
+   never hide content (skeletons still show, just without the shimmer sweep). */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

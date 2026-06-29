@@ -21,6 +21,26 @@ export const warislyPreset: Partial<Config> = {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
       },
       letterSpacing: { eyebrow: "0.2em" },
+      keyframes: {
+        // Gentle gold sweep across skeleton placeholders — calm, not frantic.
+        shimmer: {
+          "100%": { transform: "translateX(100%)" },
+        },
+        // Content settling into place: a small rise + fade, like a page being laid down.
+        riseIn: {
+          "0%": { opacity: "0", transform: "translateY(8px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        fadeIn: {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
+      },
+      animation: {
+        shimmer: "shimmer 1.8s ease-in-out infinite",
+        "rise-in": "riseIn 0.42s cubic-bezier(0.22, 1, 0.36, 1) both",
+        "fade-in": "fadeIn 0.3s ease-out both",
+      },
     },
   },
 };

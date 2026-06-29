@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Lock, ChevronDown, Check, Info } from "lucide-react";
 import { createAssetAction, updateAssetAction } from "@/app/actions/assets";
 import { fetchAssetCategories } from "@/app/actions/asset-categories";
+import { SubmitButton } from "./SubmitButton";
 import { assetCategories, groupCategories, findCategory } from "@/lib/categories";
 import type { Asset, AssetCategoryInfo } from "@warisly/db";
 
@@ -149,12 +150,12 @@ export function AssetForm({ initial, action: actionProp, hidden, submitLabel }: 
 
       {/* Actions */}
       <div className="mt-7 flex items-center gap-3 border-t border-paper-edge pt-5">
-        <button
-          type="submit"
-          className="inline-flex items-center gap-2 rounded-xl bg-tinta px-5 py-3 font-sans text-sm font-semibold text-ink-text transition hover:bg-tinta-hover active:opacity-90"
+        <SubmitButton
+          icon={<Check size={17} />}
+          className="inline-flex items-center gap-2 rounded-xl bg-tinta px-5 py-3 font-sans text-sm font-semibold text-ink-text transition hover:bg-tinta-hover"
         >
-          <Check size={17} /> {submitLabel ?? t("common.save")}
-        </button>
+          {submitLabel ?? t("common.save")}
+        </SubmitButton>
         <Link
           href="/aset"
           className="rounded-xl border border-paper-edge bg-panel px-4 py-3 font-sans text-sm font-medium text-tinta transition hover:border-emas"

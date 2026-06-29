@@ -42,3 +42,15 @@ export async function getOwnerKyc(supabase: SupabaseClient): Promise<OwnerKyc | 
   if (!data) return null;
   return { kycStatus: data.kyc_status, releaseEligible: data.release_eligible, kycVerifiedAt: data.kyc_verified_at };
 }
+
+export interface OwnerIdentity { fullName: string | null; phone: string | null; }
+
+// Non-secret identity for the account avatar (initials + label). RLS-bound: the
+// owner only ever reads their own row. No account-access data here.
+export async function getOwnerIdentity(supabase: SupabaseClient): Promise<OwnerIdentity | null> {
+  const { data, error } = await supabase.from("wrs_owners")
+    .select("full_name, phone").maybeSingle();
+  if (error) throw new Error(`getOwnerIdentity failed: ${error.message}`);
+  if (!data) return null;
+  return { fullName: data.full_name ?? null, phone: data.phone ?? null };
+}

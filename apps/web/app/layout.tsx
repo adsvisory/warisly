@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Spectral, Inter } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
+import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
 
 const fraunces = Fraunces({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-fraunces", display: "swap" });
@@ -22,6 +23,18 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang={locale} className={`${fraunces.variable} ${spectral.variable} ${inter.variable}`}>
       <body>
+        {/* Lit-fuse progress bar on route changes. The package owns the crawl/progress;
+            the burning-fuse gradient + flickering spark are styled in globals.css
+            (#nprogress) so a slow load keeps visibly burning instead of looking stuck.
+            shadow is disabled here so the CSS glow is the single source of truth. */}
+        <NextTopLoader
+          color="#E0A93F"
+          height={2}
+          shadow={false}
+          showSpinner={false}
+          easing="cubic-bezier(0.22, 1, 0.36, 1)"
+          speed={350}
+        />
         <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
       </body>
     </html>

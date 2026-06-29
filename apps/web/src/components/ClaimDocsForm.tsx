@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { useTranslations } from "next-intl";
-import { FileText, IdCard, Plus, Check } from "lucide-react";
+import { FileText, IdCard, Plus, Check, Loader2 } from "lucide-react";
 import { submitClaimAction, uploadDocsAction } from "@/app/actions/claim";
 
 function UploadTile({ name, label, Icon }: { name: string; label: string; Icon: typeof FileText }) {
@@ -46,8 +46,9 @@ export function ClaimDocsForm({ token }: { token?: string }) {
       <UploadTile name="kk" label={t("kkLabel")} Icon={IdCard} />
       <button
         disabled={pending}
-        className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-tinta px-4 py-3 font-sans text-sm font-semibold text-ink-text transition hover:bg-tinta-hover disabled:opacity-60"
+        className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-tinta px-4 py-3 font-sans text-sm font-semibold text-ink-text transition hover:bg-tinta-hover active:scale-[0.98] disabled:pointer-events-none disabled:opacity-60"
       >
+        {pending && <Loader2 size={16} className="animate-spin" aria-hidden />}
         {pending ? t("uploading") : t("upload")}
       </button>
       {state?.error && <p className="mt-3 font-sans text-sm text-red-700">{t(state.error)}</p>}

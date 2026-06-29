@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Lock } from "lucide-react";
+import { Lock, Loader2 } from "lucide-react";
 import { fetchAssetCategories } from "@/app/actions/asset-categories";
 import { assetCategories, groupCategories } from "@/lib/categories";
 import type { AssetCategoryInfo } from "@warisly/db";
@@ -121,8 +121,9 @@ export function ScanReview({
         type="button"
         disabled={saving || !v.category}
         onClick={() => onConfirm(v)}
-        className="rounded-xl bg-nyala px-6 py-3 font-sans text-[15px] font-semibold text-white transition hover:bg-nyala-pressed active:bg-nyala-pressed disabled:bg-paper-edge disabled:text-paper-muted"
+        className="inline-flex items-center justify-center gap-2 rounded-xl bg-nyala px-6 py-3 font-sans text-[15px] font-semibold text-white transition hover:bg-nyala-pressed active:scale-[0.98] disabled:bg-paper-edge disabled:text-paper-muted disabled:active:scale-100"
       >
+        {saving && <Loader2 size={16} className="animate-spin" aria-hidden />}
         {saving ? t("saving") : t("save")}
       </button>
       <p className="text-center font-sans text-[11px] text-paper-muted">{tCommon("reassure")}</p>

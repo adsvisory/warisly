@@ -9,8 +9,18 @@
     "remove": "Remove",
     "cancel": "Cancel"
   },
-  "nav": { "home": "Home", "assets": "Assets", "amanah": "Amanah", "dosier": "Dossier", "releaseRule": "Release rule", "profile": "Profile" },
-  "landing": { "tagline": "Inheritance secured, family at ease." },
+  "nav": {
+    "home": "Home",
+    "assets": "Assets",
+    "add": "Add",
+    "amanah": "Amanah",
+    "dosier": "Dossier",
+    "releaseRule": "Release rule",
+    "profile": "Profile"
+  },
+  "landing": {
+    "tagline": "Inheritance secured, family at ease."
+  },
   "masuk": {
     "title": "Sign in",
     "subtitle": "We never ask for your password. — just your phone number.",
@@ -60,6 +70,14 @@
     "stale": "Needs review",
     "sealed": "Sealed",
     "newTitle": "Add asset",
+    "chooser": {
+      "subtitle": "Choose how to add an asset. You always review before it's saved.",
+      "scanTitle": "Scan",
+      "scanDesc": "Have a balance screenshot or a document? Snap it and we'll fill it in for you.",
+      "manualTitle": "Fill in manually",
+      "manualDesc": "Type it in yourself, step by step.",
+      "recommended": "Recommended"
+    },
     "editTitle": "Edit asset",
     "edit": "Edit",
     "archive": "Archive",
@@ -85,12 +103,27 @@
       "notes": "Notes for the family"
     },
     "categories": {
-      "saham": "Stocks", "reksa_dana": "Mutual funds", "bank": "Bank account", "e_wallet": "E-wallet",
-      "emas": "Gold", "crypto": "Crypto", "asuransi": "Insurance", "bpjs": "BPJS",
-      "properti": "Property", "fisik": "Physical asset", "utang": "Debt", "lainnya": "Other",
-      "obligasi": "Bonds", "p2p": "P2P lending", "luar_negeri": "Foreign investments",
-      "pensiun": "Pension", "bisnis": "Online business", "domain": "Domains & sites",
-      "ip": "IP & royalties", "poin": "Points & loyalty", "game": "Gaming assets"
+      "saham": "Stocks",
+      "reksa_dana": "Mutual funds",
+      "bank": "Bank account",
+      "e_wallet": "E-wallet",
+      "emas": "Gold",
+      "crypto": "Crypto",
+      "asuransi": "Insurance",
+      "bpjs": "BPJS",
+      "properti": "Property",
+      "fisik": "Physical asset",
+      "utang": "Debt",
+      "lainnya": "Other",
+      "obligasi": "Bonds",
+      "p2p": "P2P lending",
+      "luar_negeri": "Foreign investments",
+      "pensiun": "Pension",
+      "bisnis": "Online business",
+      "domain": "Domains & sites",
+      "ip": "IP & royalties",
+      "poin": "Points & loyalty",
+      "game": "Gaming assets"
     }
   },
   "drafts": {
@@ -109,10 +142,23 @@
   "scan": {
     "cta": "Scan",
     "eyebrow": "New asset",
-    "title": "Scan an asset",
-    "intro": "Photograph an app screen or a document — we help fill it in. You always review before it's saved.",
+    "title": "Add an asset",
+    "intro": "Scan a screen, upload a photo, or fill it in yourself — you always review before it's saved.",
     "takePhoto": "Take a photo",
     "takePhotoHint": "An app screen (e.g. Ajaib) or a document (e.g. a certificate).",
+    "liveScan": "Scan live",
+    "liveScanHint": "The camera detects the document edges and snaps automatically once it is framed.",
+    "recommended": "Recommended",
+    "manual": "Fill in manually",
+    "manualHint": "Type it in yourself, step by step.",
+    "camStarting": "Starting camera…",
+    "camAim": "Point at an app screen or a document",
+    "camHold": "Hold still — keep it steady",
+    "camManual": "Take photo",
+    "camTorch": "Flash",
+    "camClose": "Close",
+    "camDenied": "Camera permission denied. You can still upload from the gallery.",
+    "camError": "The camera is not available. Try uploading from the gallery.",
     "fromGallery": "Upload from gallery",
     "processing": "Processing image…",
     "reading": "Reading image…",
@@ -181,7 +227,13 @@
     "wasiatNote": "A wasiat for non-heirs is capped at one-third of the estate. This is an informational reminder, not legal advice.",
     "wishPlaceholder": "Write a wish / wasiat…",
     "add": "Add",
-    "rel": { "pasangan": "Spouse", "anak": "Child", "orang_tua": "Parent", "saudara": "Sibling", "lainnya": "Other" }
+    "rel": {
+      "pasangan": "Spouse",
+      "anak": "Child",
+      "orang_tua": "Parent",
+      "saudara": "Sibling",
+      "lainnya": "Other"
+    }
   },
   "wali": {
     "back": "← Amanah",
@@ -194,9 +246,20 @@
     "inviteHelp": "Share this invite link with the trustee:",
     "copyLink": "Copy invite link",
     "copied": "Copied!",
-    "contact": { "whatsapp": "WhatsApp", "phone": "Phone", "email": "Email" },
-    "status": { "invited": "Pending", "confirmed": "Confirmed", "declined": "Declined" },
-    "role": { "primary": "Primary", "backup": "Backup" }
+    "contact": {
+      "whatsapp": "WhatsApp",
+      "phone": "Phone",
+      "email": "Email"
+    },
+    "status": {
+      "invited": "Pending",
+      "confirmed": "Confirmed",
+      "declined": "Declined"
+    },
+    "role": {
+      "primary": "Primary",
+      "backup": "Backup"
+    }
   },
   "waliConfirm": {
     "title": "Trustee invitation",
@@ -206,7 +269,9 @@
   },
   "profil": {
     "eyebrow": "Profile",
-    "title": "Identity & security",
+    "title": "Account",
+    "amanahCard": "Amanah",
+    "amanahCta": "Trustees, heirs & wishes →",
     "kycLabel": "Identity verification",
     "verified": "Verified",
     "notVerified": "Not verified",
@@ -231,7 +296,11 @@
     "quorumNote": "Trustee quorum: {required} of {of} trustees are needed to start the release process. Set trustees in Amanah.",
     "saveBtn": "Save rule",
     "back": "← Profile",
-    "ch": { "whatsapp": "WhatsApp", "email": "Email", "sms": "SMS" }
+    "ch": {
+      "whatsapp": "WhatsApp",
+      "email": "Email",
+      "sms": "SMS"
+    }
   },
   "dosier": {
     "title": "Recovery Guide",

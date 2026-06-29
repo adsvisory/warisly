@@ -50,11 +50,11 @@ export default async function Beranda() {
       {reg.total === 0 ? (
         <div className="mt-6 rounded-2xl border border-paper-edge bg-panel p-6">
           <p className="text-paper-text">{t("beranda.coldStart")}</p>
-          <Link href="/aset/baru" className={`mt-4 ${primaryBtn}`}><Plus size={17} /> {t("common.add")}</Link>
+          <Link href="/aset/pindai" className={`mt-4 ${primaryBtn}`}><Plus size={17} /> {t("common.add")}</Link>
         </div>
       ) : (
         <>
-          <div className="frame-stack mt-6 grid gap-4 sm:grid-cols-[1.3fr_1fr]">
+          <div className="stagger-children frame-stack mt-6 grid gap-4 sm:grid-cols-[1.3fr_1fr]">
             <div className="rounded-2xl border border-paper-edge bg-panel p-5">
               <p className="font-sans text-[11px] font-semibold uppercase tracking-[0.14em] text-paper-muted">{t("beranda.totalValue")}</p>
               <p className="mt-2 font-display text-[33px] tabular-nums text-tinta">{rupiah(totalValue)}</p>
@@ -82,7 +82,7 @@ export default async function Beranda() {
               {t("beranda.viewAll")}
             </Link>
           </div>
-          <div className="overflow-hidden rounded-2xl border border-paper-edge bg-panel">
+          <div className="stagger-children overflow-hidden rounded-2xl border border-paper-edge bg-panel">
             {recent.map((a) => {
               const Icon = CATEGORY_ICON[a.category];
               return (
@@ -112,7 +112,7 @@ export default async function Beranda() {
 
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <Link href="/dosier" className={primaryBtn}>{t("common.viewRecovery")} <ArrowRight size={16} /></Link>
-            <Link href="/aset/baru" className={secondaryBtn}>
+            <Link href="/aset/pindai" className={secondaryBtn}>
               <Plus size={16} /> {t("common.add")}
             </Link>
           </div>
